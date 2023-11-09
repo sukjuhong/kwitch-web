@@ -25,7 +25,9 @@ export default function RootLayout({
         >
           <Header />
 
-          <div className="container py-5 border-b">{children}</div>
+          <div className="border-b">
+            <div className="container py-5">{children}</div>
+          </div>
 
           <Footer />
         </ThemeProvider>
