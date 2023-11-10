@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <div className="container py-5">
+    <div className="py-5 text-center">
       <p>Software Architecture Term Project - Team Kwitch</p>
     </div>
   );

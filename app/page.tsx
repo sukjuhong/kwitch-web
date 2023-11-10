@@ -1,3 +1,7 @@
 export default function Home() {
-  return <p>브라우저만으로 방송을?!</p>;
+  return (
+    <div className="p-5">
+      <p>브라우저만으로 방송을?!</p>
+    </div>
+  );
 }

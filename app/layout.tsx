@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import ChannelNav from "@/components/channel-nav";
 
 export const metadata: Metadata = {
   title: "Kwitch",
@@ -25,8 +26,11 @@ export default function RootLayout({
         >
           <Header />
 
-          <div className="border-b">
-            <div className="container py-5">{children}</div>
+          <div className="border-b grid grid-cols-5">
+            <div className="border-r">
+              <ChannelNav />
+            </div>
+            <div className="col-span-4">{children}</div>
           </div>
 
           <Footer />
