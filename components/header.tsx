@@ -16,10 +16,13 @@ import LoginButton from "./login-button";
 export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95">
-      <div className="px-5 flex h-14 items-center">
+      <div className="px-5 h-14 flex items-center">
         <Logo />
-        <ModeToggle />
-        <LoginButton />
+        <div className="flex-1" />
+        <div className="flex items-center gap-x-5">
+          <ModeToggle />
+          <LoginButton />
+        </div>
       </div>
     </header>
   );

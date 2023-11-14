@@ -16,8 +16,10 @@ import {
   FormMessage,
 } from "./ui/form";
 
+// TODO: password validation and error message
 const formSchema = z.object({
   username: z.string().min(3).max(20),
+  password: z.string().min(8).max(20),
 });
 
 export default function LoginForm() {
@@ -25,6 +27,7 @@ export default function LoginForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: "",
+      password: "",
     },
   });
 
@@ -59,6 +62,20 @@ export default function LoginForm() {
               <FormDescription>
                 This is your public display name.
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input placeholder="password" type="password" {...field} />
+              </FormControl>
+              <FormDescription>This is your private password.</FormDescription>
               <FormMessage />
             </FormItem>
           )}

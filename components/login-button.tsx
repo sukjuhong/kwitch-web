@@ -1,6 +1,11 @@
 import React from "react";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 export default function LoginButton() {
-  return <Button>로그인</Button>;
+  return (
+    <Button asChild>
+      <Link href="/login">Login</Link>
+    </Button>
+  );
 }
