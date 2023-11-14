@@ -11,15 +11,15 @@ import {
 import React from "react";
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
+import LoginButton from "./login-button";
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white dark:bg-black">
-      <div className="px-5 flex h-14 items-center justify-between">
-        <div className="flex gap-x-5 items-center">
-          <Logo />
-        </div>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95">
+      <div className="px-5 flex h-14 items-center">
+        <Logo />
         <ModeToggle />
+        <LoginButton />
       </div>
     </header>
   );
