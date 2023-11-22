@@ -44,11 +44,11 @@ const broadcastDummyData: Broadcast[] = [
 function ChannelNavItem({ broadcast }: { broadcast: Broadcast }) {
   return (
     <div>
-      <Link href={`/broadcast/${broadcast.broadcastor}`} prefetch={false}>
+      <Link href={`/channels/${broadcast.broadcastor}`} prefetch={false}>
         <div className="flex p-3 items-center xl:border-b">
           <Avatar className="xl:mr-3 border-2 border-red-500">
             <AvatarImage src={broadcast.thumbnail} />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback>...</AvatarFallback>
           </Avatar>
           <div className="hidden xl:block">
             <p className="font-bold text-lg">{broadcast.title}</p>
@@ -71,7 +71,7 @@ export default function ChannelNav() {
     <div className="border-r">
       <h1 className="hidden xl:block font-bold p-3">Current Channel List</h1>
       {broadcastDummyData.map((broadcast) => (
-        <ChannelNavItem broadcast={broadcast} />
+        <ChannelNavItem key={broadcast.broadcastor} broadcast={broadcast} />
       ))}
     </div>
   );

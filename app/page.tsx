@@ -12,7 +12,7 @@ export default function Home() {
         easily.
       </p>
       <Button className="mt-8" asChild>
-        <Link href="/channel">Go to Channel List</Link>
+        <Link href="/channels">Go to Channel List</Link>
       </Button>
 
       <img

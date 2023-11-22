@@ -15,24 +15,32 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { useParams, useRouter } from "next/navigation";
 
-// TODO: password validation and error message
 const formSchema = z.object({
-  username: z.string().min(3).max(20),
-  password: z.string().min(8).max(20),
+  id: z.string().min(3).max(20),
+  password: z
+    .string()
+    .regex(
+      new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
+      "Password must contain at least 8 characters, including letters, numbers, and special characters."
+    ),
 });
 
-export default function LoginForm() {
+export default function SignInForm() {
+  const router = useRouter();
+  const params = useParams();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      id: "",
       password: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch("/api/login", {
+    const res = await fetch("/api/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -40,10 +48,10 @@ export default function LoginForm() {
       body: JSON.stringify(values),
     });
 
+    // TODO: If login is failed, show error message.
     if (res.ok) {
-      console.log("ok");
-    } else {
-      console.log("not ok");
+      if (params?.redirect) router.push(params.redirect as string);
+      else router.push("/channels");
     }
   };
 
@@ -52,7 +60,7 @@ export default function LoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="username"
+          name="id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Username</FormLabel>

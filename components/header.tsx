@@ -1,17 +1,7 @@
-"use client";
-
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-  NavigationMenuContent,
-  NavigationMenuLink,
-} from "@/components/ui/navigation-menu";
 import React from "react";
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
-import LoginButton from "./login-button";
+import SignInButton from "./sign-in-button";
 
 export default function Header() {
   return (
@@ -21,7 +11,7 @@ export default function Header() {
         <div className="flex-1" />
         <div className="flex items-center gap-x-5">
           <ModeToggle />
-          <LoginButton />
+          <SignInButton />
         </div>
       </div>
     </header>
