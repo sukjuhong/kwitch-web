@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import ChannelNav from "@/components/channel-nav";
+import SessionProvider from "@/components/session-provider";
 
 export const metadata: Metadata = {
   title: "Kwitch",
@@ -24,11 +24,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
+          <SessionProvider>
+            <Header />
 
-          {children}
+            {children}
 
-          <Footer />
+            <Footer />
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

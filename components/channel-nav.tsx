@@ -1,7 +1,8 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
-import { EyeIcon } from "@heroicons/react/24/solid";
+import { EyeIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { Button } from "./ui/button";
 
 export interface Broadcast {
   broadcastor: string;
@@ -46,14 +47,14 @@ function ChannelNavItem({ broadcast }: { broadcast: Broadcast }) {
     <div>
       <Link href={`/channels/${broadcast.broadcastor}`} prefetch={false}>
         <div className="flex p-3 items-center xl:border-b">
-          <Avatar className="xl:mr-3 border-2 border-red-500">
+          <Avatar className="xl:mr-3 border-2 border-red-500 w-8 h-8">
             <AvatarImage src={broadcast.thumbnail} />
             <AvatarFallback>...</AvatarFallback>
           </Avatar>
           <div className="hidden xl:block">
-            <p className="font-bold text-lg">{broadcast.title}</p>
+            <p className="font-bold text-md">{broadcast.title}</p>
             <p className="font-thin text-sm mb-1">{broadcast.broadcastor}</p>
-            <p className="flex items-center">
+            <p className="flex items-center text-sm">
               <EyeIcon className="w-4 h-4 text-gray-500 mr-1" />
               {broadcast.viewers}
             </p>

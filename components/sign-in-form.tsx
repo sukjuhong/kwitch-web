@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { useParams, useRouter } from "next/navigation";
+import { useSession } from "@/hooks/useSession";
 
 const formSchema = z.object({
   id: z.string().min(3).max(20),
@@ -30,6 +31,7 @@ const formSchema = z.object({
 export default function SignInForm() {
   const router = useRouter();
   const params = useParams();
+  const [session, setSession] = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,6 +52,14 @@ export default function SignInForm() {
 
     // TODO: If login is failed, show error message.
     if (res.ok) {
+      setSession({
+        user: {
+          id: 1,
+          username: "test",
+          avatar: "https://picsum.photos/seed/picsum/100/100",
+        },
+        isLoggedIn: true,
+      });
       if (params?.redirect) router.push(params.redirect as string);
       else router.push("/channels");
     }
@@ -88,7 +98,10 @@ export default function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        {/* TODO: Button Loading Animation */}
+        <Button type="submit" className="bg-kookmin">
+          Submit
+        </Button>
       </form>
     </Form>
   );

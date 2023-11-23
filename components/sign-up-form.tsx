@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { useRouter } from "next/navigation";
+import React from "react";
 
 const formSchema = z.object({
   id: z.string().min(3).max(20),
@@ -85,7 +86,10 @@ export default function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        {/* TODO: Button Loading Animation */}
+        <Button type="submit" className="bg-kookmin">
+          Submit
+        </Button>
       </form>
     </Form>
   );

@@ -6,5 +6,5 @@ export default function ChannelPage({
   params: { broadcastor: string };
 }) {
   const { broadcastor } = params;
-  return <div>{decodeURI(broadcastor)}'s channel</div>;
+  return <div>{decodeURI(broadcastor)}`&apos;`s channel</div>;
 }

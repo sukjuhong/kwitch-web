@@ -53,6 +53,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        kookmin: "#004F9F",
       },
       borderRadius: {
         lg: "var(--radius)",

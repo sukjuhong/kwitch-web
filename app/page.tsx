@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -15,10 +16,12 @@ export default function Home() {
         <Link href="/channels">Go to Channel List</Link>
       </Button>
 
-      <img
+      <Image
         src="https://www.gstatic.com/devrel-devsite/prod/v032f5e834ea07ceb506abc7629b7ff47ac48c72d9122b91b2cecfd4022841b1c/webrtc/images/lockup.svg"
         alt="WebRTC"
-        className="mt-8 w-96 dark:invert"
+        width={300}
+        height={300}
+        className="mt-8 dark:invert"
       />
     </main>
   );

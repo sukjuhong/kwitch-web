@@ -1,6 +1,19 @@
-import SignInForm from "@/components/sign-in-form";
+"use client";
 
-export default function Login() {
+import SignInForm from "@/components/sign-in-form";
+import React from "react";
+import { SessionContext } from "@/components/session-provider";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/hooks/useSession";
+
+export default function SignIn() {
+  const [session, setSession] = useSession();
+  const router = useRouter();
+
+  if (session.isLoggedIn) {
+    router.push("/channels");
+  }
+
   return (
     <div className="flex-1 flex flex-col justify-center items-center">
       <div className="w-2/3 lg:w-1/4">
