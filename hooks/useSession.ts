@@ -5,10 +5,10 @@ import {
 } from "@/components/session-provider";
 import React, { SetStateAction, useEffect } from "react";
 
-export function useSession(): [
-  Session,
-  React.Dispatch<SetStateAction<Session>>
-] {
+export function useSession(): {
+  session: Session | null;
+  update: React.Dispatch<SetStateAction<Session | null>>;
+} {
   if (!SessionContext) {
     throw new Error("React Context is unavailable in Server Components");
   }
@@ -18,5 +18,8 @@ export function useSession(): [
     throw new Error("useSession must be used within a SessionProvider");
   }
 
-  return [value.session, value.setSession];
+  return {
+    session: value.session,
+    update: value.setSession,
+  };
 }

@@ -9,12 +9,11 @@ export type Session = {
     username: string;
     avatar?: string;
   };
-  isLoggedIn: boolean;
 };
 
 export type SessionContextValue = {
-  session: Session;
-  setSession: React.Dispatch<React.SetStateAction<Session>>;
+  session: Session | null;
+  setSession: React.Dispatch<React.SetStateAction<Session | null>>;
 };
 
 export const SessionContext = React.createContext<
@@ -26,13 +25,7 @@ export default function SessionProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [session, setSession] = React.useState<Session>({
-    user: {
-      id: 0,
-      username: "",
-    },
-    isLoggedIn: false,
-  });
+  const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {

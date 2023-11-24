@@ -31,7 +31,7 @@ const formSchema = z.object({
 export default function SignInForm() {
   const router = useRouter();
   const params = useParams();
-  const [session, setSession] = useSession();
+  const { session, update } = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,13 +52,12 @@ export default function SignInForm() {
 
     // TODO: If login is failed, show error message.
     if (res.ok) {
-      setSession({
+      update({
         user: {
           id: 1,
           username: "test",
           avatar: "https://picsum.photos/seed/picsum/100/100",
         },
-        isLoggedIn: true,
       });
       if (params?.redirect) router.push(params.redirect as string);
       else router.push("/channels");

@@ -10,7 +10,7 @@ import UserButton from "./user-button";
 import { useSession } from "@/hooks/useSession";
 
 export default function Header() {
-  const [session, setSession] = useSession();
+  const { session, update } = useSession();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95">
@@ -19,7 +19,7 @@ export default function Header() {
         <div className="flex-1" />
         <div className="flex items-center gap-x-5">
           <ModeToggle />
-          {session.isLoggedIn ? (
+          {session ? (
             <UserButton />
           ) : (
             <>

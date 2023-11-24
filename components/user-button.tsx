@@ -15,18 +15,12 @@ import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
 
 export default function UserButton() {
-  const [session, setSession] = useSession();
+  const { session, update } = useSession();
   const router = useRouter();
 
   function signOut() {
     fetch("/api/signout").then(() => {
-      setSession({
-        user: {
-          id: 0,
-          username: "",
-        },
-        isLoggedIn: false,
-      });
+      update(null);
 
       router.push("/");
     });
@@ -36,12 +30,12 @@ export default function UserButton() {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src={session.user?.avatar} alt="@shadcn" />
+          <AvatarImage src={session?.user.avatar} alt="@shadcn" />
           <AvatarFallback>You</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{session.user.username}</DropdownMenuLabel>
+        <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>

@@ -7,10 +7,10 @@ import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useSession";
 
 export default function SignIn() {
-  const [session, setSession] = useSession();
+  const { session } = useSession();
   const router = useRouter();
 
-  if (session.isLoggedIn) {
+  if (session) {
     router.push("/channels");
   }
 

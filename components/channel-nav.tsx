@@ -1,15 +1,18 @@
-import React from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import Link from "next/link";
-import { EyeIcon, PlusIcon } from "@heroicons/react/24/solid";
-import { Button } from "./ui/button";
+"use client";
 
-export interface Broadcast {
+import React from "react";
+import ChannelNavItem from "./channel-nav-item";
+import {
+  ArrowLeftCircleIcon,
+  ArrowRightCircleIcon,
+} from "@heroicons/react/24/solid";
+
+export type Broadcast = {
   broadcastor: string;
   title: string;
   viewers: number;
   thumbnail: string;
-}
+};
 
 const broadcastDummyData: Broadcast[] = [
   {
@@ -42,37 +45,44 @@ const broadcastDummyData: Broadcast[] = [
   },
 ];
 
-function ChannelNavItem({ broadcast }: { broadcast: Broadcast }) {
-  return (
-    <div>
-      <Link href={`/channels/${broadcast.broadcastor}`} prefetch={false}>
-        <div className="flex p-3 items-center xl:border-b">
-          <Avatar className="xl:mr-3 border-2 border-red-500 w-8 h-8">
-            <AvatarImage src={broadcast.thumbnail} />
-            <AvatarFallback>...</AvatarFallback>
-          </Avatar>
-          <div className="hidden xl:block">
-            <p className="font-bold text-md">{broadcast.title}</p>
-            <p className="font-thin text-sm mb-1">{broadcast.broadcastor}</p>
-            <p className="flex items-center text-sm">
-              <EyeIcon className="w-4 h-4 text-gray-500 mr-1" />
-              {broadcast.viewers}
-            </p>
-          </div>
-        </div>
-      </Link>
-    </div>
-  );
-}
-
-export default function ChannelNav() {
+export default function ChannelNav({
+  foldNav,
+  setFoldNav,
+}: {
+  foldNav: boolean;
+  setFoldNav: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   broadcastDummyData.sort((a, b) => b.viewers - a.viewers);
 
   return (
-    <div className="border-r">
-      <h1 className="hidden xl:block font-bold p-3">Current Channel List</h1>
+    <div
+      className={`border-r flex flex-col items-center ${
+        foldNav ? "" : "xl:block"
+      }`}
+    >
+      {foldNav && (
+        <ArrowRightCircleIcon
+          className="w-8 h-8 m-3 cursor-pointer"
+          onClick={() => setFoldNav(false)}
+        />
+      )}
+      <div
+        className={`hidden ${
+          foldNav ? "" : "xl:flex"
+        } justify-between items-center p-3`}
+      >
+        <p className="font-bold">Current Channel List</p>
+        <ArrowLeftCircleIcon
+          className="w-6 h-6 cursor-pointer"
+          onClick={() => setFoldNav(true)}
+        />
+      </div>
       {broadcastDummyData.map((broadcast) => (
-        <ChannelNavItem key={broadcast.broadcastor} broadcast={broadcast} />
+        <ChannelNavItem
+          key={broadcast.broadcastor}
+          broadcast={broadcast}
+          foldNav={foldNav}
+        />
       ))}
     </div>
   );
