@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -14,9 +14,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { useRouter } from "next/navigation";
-import React from "react";
+} from "../ui/form";
+import { useParams, useRouter } from "next/navigation";
+import { useSession } from "@/hooks/useSession";
 
 const formSchema = z.object({
   id: z.string().min(3).max(20),
@@ -30,6 +30,8 @@ const formSchema = z.object({
 
 export default function SignInForm() {
   const router = useRouter();
+  const params = useParams();
+  const { session, update } = useSession();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,7 +42,7 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch("/api/signup", {
+    const res = await fetch("/api/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,8 +50,17 @@ export default function SignInForm() {
       body: JSON.stringify(values),
     });
 
+    // TODO: If login is failed, show error message.
     if (res.ok) {
-      router.push("/channels");
+      update({
+        user: {
+          id: 1,
+          username: "test",
+          avatar: "https://picsum.photos/seed/picsum/100/100",
+        },
+      });
+      if (params?.redirect) router.push(params.redirect as string);
+      else router.push("/channels");
     }
   };
 

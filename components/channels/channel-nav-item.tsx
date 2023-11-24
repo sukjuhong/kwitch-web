@@ -1,5 +1,5 @@
+import type { Broadcast } from "@/components/channels/channel-nav";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { Broadcast } from "@/components/channel-nav";
 import { EyeIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 

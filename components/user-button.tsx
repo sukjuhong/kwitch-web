@@ -19,7 +19,7 @@ export default function UserButton() {
   const router = useRouter();
 
   function signOut() {
-    fetch("/api/signout").then(() => {
+    fetch("/api/signout", { method: "POST" }).then(() => {
       update(null);
 
       router.push("/");

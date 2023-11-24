@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import ChannelNav from "@/components/channel-nav";
+import ChannelNav from "@/components/channels/channel-nav";
 
 export default function ChannelLayout({
   children,

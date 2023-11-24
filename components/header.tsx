@@ -3,9 +3,9 @@
 import React from "react";
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
-import SignInButton from "./sign-in-button";
+import SignInButton from "./auth/sign-in-button";
 import { SessionContext } from "./session-provider";
-import SignUpButton from "./sign-up-button";
+import SignUpButton from "./auth/sign-up-button";
 import UserButton from "./user-button";
 import { useSession } from "@/hooks/useSession";
 
