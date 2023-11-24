@@ -62,7 +62,7 @@ export default function ChannelNav({
     >
       {foldNav && (
         <ArrowRightCircleIcon
-          className="w-8 h-8 m-3 cursor-pointer"
+          className="w-8 h-8 m-3 cursor-pointer hidden xl:block"
           onClick={() => setFoldNav(false)}
         />
       )}
