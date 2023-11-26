@@ -10,7 +10,7 @@ import UserButton from "./user-button";
 import { useSession } from "@/hooks/useSession";
 
 export default function Header() {
-  const { session, update } = useSession();
+  const { session } = useSession();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95">

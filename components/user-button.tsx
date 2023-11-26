@@ -10,20 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { SessionContext } from "./session-provider";
 import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
 
 export default function UserButton() {
-  const { session, update } = useSession();
+  const { session, signOut } = useSession();
   const router = useRouter();
 
-  function signOut() {
-    fetch("/api/signout", { method: "POST" }).then(() => {
-      update(null);
-
-      router.push("/");
-    });
+  function handleClick() {
+    setTimeout(() => {
+      signOut();
+    }, 50);
+    router.push("/");
   }
 
   return (
@@ -37,7 +35,7 @@ export default function UserButton() {
       <DropdownMenuContent>
         <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={signOut}>Sign Out</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleClick}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

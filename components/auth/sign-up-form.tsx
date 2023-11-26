@@ -17,8 +17,9 @@ import {
 } from "../ui/form";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { useSession } from "@/hooks/useSession";
 
-const formSchema = z.object({
+export const formSchema = z.object({
   id: z.string().min(3).max(20),
   password: z
     .string()
@@ -28,7 +29,8 @@ const formSchema = z.object({
     ),
 });
 
-export default function SignInForm() {
+export default function SignUpForm() {
+  // const { signUp } = useSession();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -40,17 +42,7 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(values),
-    });
-
-    if (res.ok) {
-      router.push("/channels");
-    }
+    // await signUp(values);
   };
 
   return (
