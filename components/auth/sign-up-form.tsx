@@ -21,6 +21,7 @@ import { useSession } from "@/hooks/useSession";
 
 export const formSchema = z.object({
   id: z.string().min(3).max(20),
+  username: z.string().min(3).max(20),
   password: z
     .string()
     .regex(
@@ -30,19 +31,23 @@ export const formSchema = z.object({
 });
 
 export default function SignUpForm() {
-  // const { signUp } = useSession();
+  const { signUp } = useSession();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       id: "",
+      username: "",
       password: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // await signUp(values);
+    const ok = await signUp(values);
+    if (ok) {
+      router.push("/sign-in");
+    }
   };
 
   return (
@@ -51,6 +56,20 @@ export default function SignUpForm() {
         <FormField
           control={form.control}
           name="id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>ID</FormLabel>
+              <FormControl>
+                <Input placeholder="username" {...field} />
+              </FormControl>
+              <FormDescription>This is your id for login.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Username</FormLabel>

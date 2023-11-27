@@ -1,5 +1,5 @@
 import { type Session, SessionContext } from "@/components/session-provider";
-import React from "react";
+import React, { useEffect } from "react";
 import * as z from "zod";
 import { formSchema as SignInSchema } from "@/components/auth/sign-in-form";
 import { formSchema as SignUpSchema } from "@/components/auth/sign-up-form";
@@ -12,7 +12,7 @@ export type SignUpContext = {
 
 export function useSession(): {
   session: Session | null;
-  // signUp: (signUpContext: z.infer<typeof SignUpSchema>) => Promise<void>;
+  signUp: (signUpContext: z.infer<typeof SignUpSchema>) => Promise<boolean>;
   signIn: (signInContext: z.infer<typeof SignInSchema>) => Promise<boolean>;
   signOut: () => void;
 } {
@@ -38,7 +38,7 @@ export function useSession(): {
     const data = await res.json();
 
     if (res.ok) {
-      value!.setSession({
+      value!.update({
         user: {
           userid: data.userid,
           username: data.nickname,
@@ -51,14 +51,26 @@ export function useSession(): {
 
   function signOut() {
     fetch("/api/signout", { method: "POST" });
-    value!.setSession(null);
+    value!.update(null);
   }
 
-  function signUp() {}
+  async function signUp(formSchema: z.infer<typeof SignUpSchema>) {
+    const { id, username, password } = formSchema;
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id, username, password }),
+    });
+
+    return res.ok;
+  }
 
   return {
     session: value.session,
     signIn,
     signOut,
+    signUp,
   };
 }

@@ -13,7 +13,7 @@ export type Session = {
 
 export type SessionContextValue = {
   session: Session | null;
-  setSession: React.Dispatch<React.SetStateAction<Session | null>>;
+  update: React.Dispatch<React.SetStateAction<Session | null>>;
 };
 
 export const SessionContext = React.createContext<
@@ -26,17 +26,32 @@ export default function SessionProvider({
   children: React.ReactNode;
 }) {
   const [session, setSession] = React.useState<Session | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
-    // TODO: get user info from server.
-    // if you can't get user info, it describes user is not logged in.
-    // currently, we just mock it. when you enter the page, you are logged in.
-    // fetch("/api/users/me")
+    const fetchSession = async () => {
+      const res = await fetch("/api/getUser");
+
+      if (res.ok) {
+        const data = await res.json();
+        setSession({
+          user: {
+            userid: data.userId,
+            username: data.nickname,
+          },
+        });
+      } else {
+        console.log("You are not logged in");
+      }
+
+      setLoading(false);
+    };
+    fetchSession();
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session, setSession }}>
-      {children}
+    <SessionContext.Provider value={{ session, update: setSession }}>
+      {loading ? <Loading /> : children}
     </SessionContext.Provider>
   );
 }
