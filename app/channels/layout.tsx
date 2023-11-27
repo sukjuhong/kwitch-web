@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ChannelNav from "@/components/channels/channel-nav";
 import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
@@ -11,9 +11,10 @@ export default function ChannelLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [foldNav, setFoldNav] = React.useState(false);
   const { session } = useSession();
   const router = useRouter();
+
+  const [foldNav, setFoldNav] = useState(false);
 
   useEffect(() => {
     if (!session) {
@@ -22,9 +23,11 @@ export default function ChannelLayout({
   }, []);
 
   return session ? (
-    <div className={`flex-1 flex ${foldNav ? "" : "xl:grid xl:grid-cols-5"}`}>
+    <div className={`flex-1 flex`}>
       <ChannelNav foldNav={foldNav} setFoldNav={setFoldNav} />
-      <div className="col-span-4">{children}</div>
+      <div className={`flex-1 flex ${foldNav ? "" : "xl:col-span-4"}`}>
+        {children}
+      </div>
     </div>
   ) : (
     <Loading />

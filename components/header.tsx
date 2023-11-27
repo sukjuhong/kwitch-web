@@ -13,7 +13,7 @@ export default function Header() {
   const { session } = useSession();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95">
+    <header className="w-full border-b bg-background/95">
       <div className="px-5 h-14 flex items-center">
         <Logo />
         <div className="flex-1" />

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import Loading from "./loading";
+import { Socket, io } from "socket.io-client";
 
 export type Session = {
   user: {
