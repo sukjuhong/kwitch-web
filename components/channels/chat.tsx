@@ -8,6 +8,10 @@ import { Button } from "../ui/button";
 import { useSession } from "@/hooks/useSession";
 import { set } from "zod";
 import { Textarea } from "../ui/textarea";
+import {
+  Bars3BottomLeftIcon,
+  Bars3BottomRightIcon,
+} from "@heroicons/react/24/solid";
 
 type Message = {
   username: string;
@@ -29,9 +33,13 @@ function MessageBox({ message }: { message: Message }) {
 export default function Chat({
   socket,
   room,
+  closeChat,
+  setCloseChat,
 }: {
   socket: Socket;
   room: string;
+  closeChat: boolean;
+  setCloseChat: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // TODO: restrict amount of messages
 
@@ -70,7 +78,6 @@ export default function Chat({
     });
 
     return () => {
-      socket.emit("disconnecting");
       socket.off("welcome");
       socket.off("new_message");
     };
@@ -101,7 +108,13 @@ export default function Chat({
 
   return (
     <>
-      <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
+      <div className="relative">
+        <Bars3BottomLeftIcon
+          className="absolute top-3 left-3 h-6 w-6 cursor-pointer"
+          onClick={() => setCloseChat(true)}
+        />
+        <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
+      </div>
       <div className="flex-1 flex flex-col-reverse p-3">
         <div>
           {messages.map((message, index) => (
