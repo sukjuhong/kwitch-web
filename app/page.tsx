@@ -20,16 +20,16 @@ export default function Home() {
         <Image
           src="https://socket.io/images/logo-dark.svg"
           alt="Socket.io"
-          width={100}
-          height={100}
-          className="mt-8 invert px-3"
+          width={150}
+          height={150}
+          className="mt-8 invert dark:invert-0 px-5"
         />
         <Image
           src="https://www.gstatic.com/devrel-devsite/prod/v032f5e834ea07ceb506abc7629b7ff47ac48c72d9122b91b2cecfd4022841b1c/webrtc/images/lockup.svg"
           alt="WebRTC"
-          width={300}
-          height={300}
-          className="mt-8 dark:invert px-3"
+          width={400}
+          height={400}
+          className="mt-8 dark:invert px-5"
         />
       </div>
     </main>
