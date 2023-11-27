@@ -18,10 +18,8 @@ export default function UserButton() {
   const router = useRouter();
 
   function handleClick() {
-    setTimeout(() => {
-      signOut();
-    }, 50);
     router.push("/");
+    signOut();
   }
 
   return (
