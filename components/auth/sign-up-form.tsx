@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useSession } from "@/hooks/useSession";
+import { Loader2 } from "lucide-react";
 
 export const formSchema = z.object({
   id: z.string().min(3).max(20),
@@ -31,6 +32,7 @@ export const formSchema = z.object({
 });
 
 export default function SignUpForm() {
+  const [loading, setLoading] = React.useState(false);
   const { signUp } = useSession();
   const router = useRouter();
 
@@ -44,10 +46,12 @@ export default function SignUpForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
     const ok = await signUp(values);
     if (ok) {
       router.push("/sign-in");
     }
+    setLoading(false);
   };
 
   return (
@@ -97,9 +101,16 @@ export default function SignUpForm() {
             </FormItem>
           )}
         />
-        {/* TODO: Button Loading Animation */}
-        <Button type="submit" className="bg-kookmin">
-          Submit
+        <Button
+          type="submit"
+          className="bg-kookmin dark:text-white"
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </form>
     </Form>

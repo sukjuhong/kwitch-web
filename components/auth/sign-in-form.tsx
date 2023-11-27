@@ -17,6 +17,8 @@ import {
 } from "../ui/form";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/hooks/useSession";
+import { Loader2 } from "lucide-react";
+import React from "react";
 
 export const formSchema = z.object({
   id: z.string().min(3).max(20),
@@ -33,6 +35,8 @@ export default function SignInForm() {
   const searchParams = useSearchParams();
   const { signIn } = useSession();
 
+  const [loading, setLoading] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -42,11 +46,13 @@ export default function SignInForm() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
     const dst = searchParams.get("redirect") || "/channels";
     const ok = await signIn(values);
     if (ok) {
       router.push(dst);
     }
+    setLoading(false);
   };
 
   return (
@@ -78,9 +84,16 @@ export default function SignInForm() {
             </FormItem>
           )}
         />
-        {/* TODO: Button Loading Animation */}
-        <Button type="submit" className="bg-kookmin">
-          Submit
+        <Button
+          type="submit"
+          className="bg-kookmin dark:text-white"
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </form>
     </Form>

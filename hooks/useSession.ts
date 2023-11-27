@@ -33,6 +33,7 @@ export function useSession(): {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ id, password }),
+      cache: "no-cache",
     });
 
     const data = await res.json();
@@ -50,7 +51,7 @@ export function useSession(): {
   }
 
   function signOut() {
-    fetch("/api/signout", { method: "POST" });
+    fetch("/api/signout", { method: "POST", cache: "no-cache" });
     value!.update(null);
   }
 
@@ -62,6 +63,7 @@ export function useSession(): {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ id, username, password }),
+      cache: "no-cache",
     });
 
     return res.ok;
