@@ -4,8 +4,8 @@ import React from "react";
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
-  EyeIcon,
 } from "@heroicons/react/24/solid";
+import { EyeIcon } from "@heroicons/react/20/solid";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 
@@ -63,13 +63,15 @@ function ChannelNavItem({
             <AvatarFallback>...</AvatarFallback>
           </Avatar>
           {!foldNav && (
-            <div className="hidden xl:block pl-3">
-              <p className="font-bold text-md">{broadcast.title}</p>
-              <p className="font-thin text-sm mb-1">{broadcast.broadcastor}</p>
-              <p className="flex items-center text-sm">
-                <EyeIcon className="w-4 h-4 text-gray-500 mr-1" />
-                {broadcast.viewers}
-              </p>
+            <div className="flex-1 hidden xl:block pl-3">
+              <div className="flex justify-between gap-x-5">
+                <p className="font-bold text-md">{broadcast.title}</p>
+                <div className="flex items-center">
+                  <EyeIcon className="w-4 h-4 text-gray-500 mr-1" />
+                  <span className="text-sm">{broadcast.viewers}</span>
+                </div>
+              </div>
+              <span>{broadcast.broadcastor}</span>
             </div>
           )}
         </div>
