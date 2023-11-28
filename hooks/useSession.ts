@@ -62,7 +62,7 @@ export function useSession(): {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id, username, password }),
+      body: JSON.stringify({ id, nickname: username, password }),
       cache: "no-cache",
     });
 
