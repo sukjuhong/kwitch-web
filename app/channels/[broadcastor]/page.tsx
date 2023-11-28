@@ -39,7 +39,9 @@ export default function ChannelPage({
         <h1>{onAir ? "열려있는 방송" : "꺼져있는 방송"}</h1>
       </div>
       <div
-        className={`w-80 border-l flex flex-col ${closeChat ? "hidden" : ""}`}
+        className={`w-80 border-l flex flex-col ${
+          closeChat || !onAir ? "hidden" : ""
+        }`}
       >
         <Chat room={broadcastor} setCloseChat={setCloseChat} />
       </div>
