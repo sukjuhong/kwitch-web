@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import * as z from "zod";
 import { formSchema as SignInSchema } from "@/components/auth/sign-in-form";
 import { formSchema as SignUpSchema } from "@/components/auth/sign-up-form";
+import { Socket, io } from "socket.io-client";
 
 export type SignUpContext = {
   id: string;

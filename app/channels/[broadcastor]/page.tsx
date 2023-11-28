@@ -1,12 +1,9 @@
 "use client";
 
 import Chat from "@/components/channels/chat";
-import {
-  Bars3BottomLeftIcon,
-  Bars3BottomRightIcon,
-} from "@heroicons/react/24/solid";
+import { Bars3BottomRightIcon } from "@heroicons/react/24/solid";
 import React, { useEffect } from "react";
-import { Socket, io } from "socket.io-client";
+import { socket } from "@/lib/socket";
 
 export default function ChannelPage({
   params,
@@ -16,15 +13,16 @@ export default function ChannelPage({
   let { broadcastor } = params;
   broadcastor = decodeURI(broadcastor);
 
-  const socket = io({ autoConnect: false });
+  const [onAir, setOnAir] = React.useState(true);
   const [closeChat, setCloseChat] = React.useState(false);
 
   useEffect(() => {
-    socket.connect();
+    socket.on("no_room", () => {
+      // TODO: channel is not on air. handle this
+      setOnAir(false);
+    });
 
-    return () => {
-      socket.disconnect();
-    };
+    socket.emit("enter_room", broadcastor);
   }, []);
 
   return (
@@ -38,17 +36,12 @@ export default function ChannelPage({
             />
           </div>
         )}
-        <h1>방송공간</h1>
+        <h1>{onAir ? "열려있는 방송" : "꺼져있는 방송"}</h1>
       </div>
       <div
         className={`w-80 border-l flex flex-col ${closeChat ? "hidden" : ""}`}
       >
-        <Chat
-          socket={socket}
-          room={broadcastor}
-          closeChat={closeChat}
-          setCloseChat={setCloseChat}
-        />
+        <Chat room={broadcastor} setCloseChat={setCloseChat} />
       </div>
     </>
   );

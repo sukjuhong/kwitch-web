@@ -1,17 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Socket } from "socket.io-client";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useSession } from "@/hooks/useSession";
-import { set } from "zod";
 import { Textarea } from "../ui/textarea";
-import {
-  Bars3BottomLeftIcon,
-  Bars3BottomRightIcon,
-} from "@heroicons/react/24/solid";
+import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
+import { socket } from "@/lib/socket";
 
 type Message = {
   username: string;
@@ -31,54 +26,41 @@ function MessageBox({ message }: { message: Message }) {
 }
 
 export default function Chat({
-  socket,
   room,
-  closeChat,
   setCloseChat,
 }: {
-  socket: Socket;
   room: string;
-  closeChat: boolean;
   setCloseChat: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   // TODO: restrict amount of messages
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { username: "admin", msg: "Welcome to the chat!", isAdmin: true },
+  ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const { session } = useSession();
 
   useEffect(() => {
-    socket.emit("enter_room", room, () => {
+    socket.on("chatting_enter", (userid: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: "admin",
-          msg: "Welcome to the chat!",
+          msg: `${userid} joined the chat!`,
           isAdmin: true,
         },
       ]);
     });
 
-    socket.on("welcome", (userId) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          username: "admin",
-          msg: `${userId} joined the chat!`,
-          isAdmin: true,
-        },
-      ]);
-    });
-
-    socket.on("new_message", (msg, userId) => {
-      setMessages((prev) => [
-        ...prev,
-        { username: userId, msg, isAdmin: false },
-      ]);
-    });
+    socket.on(
+      "new_message",
+      (msg: string, userid: string, username: string) => {
+        setMessages((prev) => [...prev, { username, msg, isAdmin: false }]);
+      }
+    );
 
     return () => {
-      socket.off("welcome");
+      socket.off("chatting_enter");
       socket.off("new_message");
     };
   }, []);
@@ -102,6 +84,7 @@ export default function Chat({
       if (e.shiftKey) {
         return;
       }
+      e.preventDefault();
       submitMessage();
     }
   }

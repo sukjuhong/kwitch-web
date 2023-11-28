@@ -4,10 +4,10 @@ import React from "react";
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
 import SignInButton from "./auth/sign-in-button";
-import { SessionContext } from "./session-provider";
 import SignUpButton from "./auth/sign-up-button";
 import UserButton from "./user-button";
 import { useSession } from "@/hooks/useSession";
+import CreateChannelButton from "./create-channel-button";
 
 export default function Header() {
   const { session } = useSession();
@@ -20,7 +20,10 @@ export default function Header() {
         <div className="flex items-center gap-x-5">
           <ModeToggle />
           {session ? (
-            <UserButton />
+            <>
+              <UserButton />
+              <CreateChannelButton />
+            </>
           ) : (
             <>
               <SignInButton />
