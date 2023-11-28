@@ -27,10 +27,11 @@ export default function SessionProvider({
   children: React.ReactNode;
 }) {
   const [session, setSession] = React.useState<Session | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
+      setLoading(true);
       const res = await fetch("/api/user/info", { cache: "no-cache" });
 
       if (res.ok) {
