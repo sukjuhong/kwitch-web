@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
 import React, { useEffect } from "react";
+import { socket } from "@/lib/socket";
 
 export declare type Channel = {
   broadcastor: string;
@@ -19,8 +20,6 @@ export default function ChannelNav() {
   const [channels, setChannels] = React.useState<Channel[]>([]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-
     async function getChannels() {
       const res = await fetch("/api/rooms");
 
@@ -29,17 +28,17 @@ export default function ChannelNav() {
         setChannels(
           roomlist.map((room: any) => ({
             broadcastor: room.name,
-            title: "미구현",
+            title: "이름 아직 미구현",
             viewers: room.users,
           }))
         );
       }
-
-      timer = setTimeout(getChannels, 1000 * 10);
     }
     getChannels();
 
-    return () => clearTimeout(timer);
+    socket.on("room_change", () => {
+      getChannels();
+    });
   }, []);
 
   return (
