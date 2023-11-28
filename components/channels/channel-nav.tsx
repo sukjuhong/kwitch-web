@@ -14,17 +14,13 @@ export declare type Channel = {
   thumbnail?: string;
 };
 
-export default function ChannelNav({
-  foldNav,
-  setFoldNav,
-}: {
-  foldNav: boolean;
-  setFoldNav: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function ChannelNav() {
+  const [foldNav, setFoldNav] = React.useState(false);
   const [channels, setChannels] = React.useState<Channel[]>([]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+
     async function getChannels() {
       const res = await fetch("/api/rooms");
 
@@ -48,7 +44,7 @@ export default function ChannelNav({
 
   return (
     <div
-      className={`border-r bg-gray-100 dark:bg-gray-900 ${
+      className={`border-r bg-gray-100 dark:bg-gray-900 min-w-[56px] ${
         foldNav ? "" : "xl:w-80"
       } flex flex-col`}
     >

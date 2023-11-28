@@ -25,19 +25,14 @@ function MessageBox({ message }: { message: Message }) {
   );
 }
 
-export default function Chat({
-  room,
-  setCloseChat,
-}: {
-  room: string;
-  setCloseChat: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
+export default function Chat({ room }: { room: string }) {
   // TODO: restrict amount of messages
 
   const [messages, setMessages] = useState<Message[]>([
     { username: "admin", msg: "Welcome to the chat!", isAdmin: true },
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const [closeChat, setCloseChat] = useState(false);
   const { session } = useSession();
 
   useEffect(() => {
@@ -90,14 +85,20 @@ export default function Chat({
   }
 
   return (
-    <>
-      <div className="relative">
-        <Bars3BottomLeftIcon
-          className="absolute top-3 left-3 h-6 w-6 cursor-pointer"
-          onClick={() => setCloseChat(true)}
-        />
-        <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
-      </div>
+    <div
+      className={
+        "absolute h-full border-l w-80 flex flex-col transition-all duration-500 " +
+        (closeChat ? "-right-80" : "right-0")
+      }
+    >
+      <Bars3BottomLeftIcon
+        className={
+          "w-6 h-6 absolute top-3 cursor-pointer transition-all duration-500 " +
+          (closeChat ? "-left-8" : "left-2")
+        }
+        onClick={() => setCloseChat(!closeChat)}
+      />
+      <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
       <div className="flex-1 flex flex-col-reverse p-3">
         <div>
           {messages.map((message, index) => (
@@ -125,6 +126,6 @@ export default function Chat({
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

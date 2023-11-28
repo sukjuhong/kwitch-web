@@ -14,8 +14,6 @@ export default function ChannelLayout({
   const { session } = useSession();
   const router = useRouter();
 
-  const [foldNav, setFoldNav] = useState(false);
-
   useEffect(() => {
     if (!session) {
       router.replace("/sign-in?redirect=/channels");
@@ -23,11 +21,9 @@ export default function ChannelLayout({
   }, []);
 
   return session ? (
-    <div className={`flex-1 flex`}>
-      <ChannelNav foldNav={foldNav} setFoldNav={setFoldNav} />
-      <div className={`flex-1 flex ${foldNav ? "" : "xl:col-span-4"}`}>
-        {children}
-      </div>
+    <div className="flex-1 flex">
+      <ChannelNav />
+      <div className="flex-1 flex">{children}</div>
     </div>
   ) : (
     <Loading />
