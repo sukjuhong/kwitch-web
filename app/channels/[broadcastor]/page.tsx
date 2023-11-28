@@ -1,12 +1,12 @@
 "use client";
 
 import Chat from "@/components/channels/chat";
-import { socket } from "@/lib/socket";
 import {
   Bars3BottomLeftIcon,
   Bars3BottomRightIcon,
 } from "@heroicons/react/24/solid";
 import React, { useEffect } from "react";
+import { Socket, io } from "socket.io-client";
 
 export default function ChannelPage({
   params,
@@ -16,6 +16,7 @@ export default function ChannelPage({
   let { broadcastor } = params;
   broadcastor = decodeURI(broadcastor);
 
+  const socket = io({ autoConnect: false });
   const [closeChat, setCloseChat] = React.useState(false);
 
   useEffect(() => {
