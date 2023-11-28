@@ -63,9 +63,9 @@ export default function SignInForm() {
           name="id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>id</FormLabel>
               <FormControl>
-                <Input placeholder="username" {...field} />
+                <Input placeholder="id" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

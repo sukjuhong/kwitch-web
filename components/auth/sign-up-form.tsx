@@ -62,7 +62,7 @@ export default function SignUpForm() {
           name="id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>ID</FormLabel>
+              <FormLabel>id</FormLabel>
               <FormControl>
                 <Input placeholder="username" {...field} />
               </FormControl>
