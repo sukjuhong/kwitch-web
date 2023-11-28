@@ -9,14 +9,14 @@ import { EyeIcon } from "@heroicons/react/20/solid";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 
-export type Broadcast = {
+declare type Channel = {
   broadcastor: string;
   title: string;
   viewers: number;
-  thumbnail: string;
+  thumbnail?: string;
 };
 
-const broadcastDummyData: Broadcast[] = [
+const channels: Channel[] = [
   {
     broadcastor: "한동숙",
     title: "키미가시네 2장",
@@ -48,30 +48,30 @@ const broadcastDummyData: Broadcast[] = [
 ];
 
 function ChannelNavItem({
-  broadcast,
+  channel,
   foldNav,
 }: {
-  broadcast: Broadcast;
+  channel: Channel;
   foldNav: boolean;
 }) {
   return (
     <div>
-      <Link href={`/channels/${broadcast.broadcastor}`} prefetch={false}>
+      <Link href={`/channels/${channel.broadcastor}`} prefetch={false}>
         <div className="flex p-3 items-center xl:border-b">
           <Avatar className="border-2 border-red-500 w-8 h-8">
-            <AvatarImage src={broadcast.thumbnail} />
+            <AvatarImage src={channel.thumbnail} />
             <AvatarFallback>...</AvatarFallback>
           </Avatar>
           {!foldNav && (
             <div className="flex-1 hidden xl:block pl-3">
               <div className="flex justify-between gap-x-5">
-                <p className="font-bold text-md">{broadcast.title}</p>
+                <p className="font-bold text-md">{channel.title}</p>
                 <div className="flex items-center">
                   <EyeIcon className="w-4 h-4 text-gray-500 mr-1" />
-                  <span className="text-sm">{broadcast.viewers}</span>
+                  <span className="text-sm">{channel.viewers}</span>
                 </div>
               </div>
-              <span>{broadcast.broadcastor}</span>
+              <span>{channel.broadcastor}</span>
             </div>
           )}
         </div>
@@ -87,7 +87,7 @@ export default function ChannelNav({
   foldNav: boolean;
   setFoldNav: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-  broadcastDummyData.sort((a, b) => b.viewers - a.viewers);
+  channels.sort((a, b) => b.viewers - a.viewers);
 
   return (
     <div
@@ -112,10 +112,10 @@ export default function ChannelNav({
           onClick={() => setFoldNav(true)}
         />
       </div>
-      {broadcastDummyData.map((broadcast) => (
+      {channels.map((channel) => (
         <ChannelNavItem
-          key={broadcast.broadcastor}
-          broadcast={broadcast}
+          key={channel.broadcastor}
+          channel={channel}
           foldNav={foldNav}
         />
       ))}
