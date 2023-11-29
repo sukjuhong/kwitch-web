@@ -36,12 +36,12 @@ export default function Chat({ room }: { room: string }) {
   const { session } = useSession();
 
   useEffect(() => {
-    socket.on("chatting_enter", (userid: string) => {
+    socket.on("chatting_enter", (username: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: "admin",
-          msg: `${userid} joined the chat!`,
+          msg: `${username} joined the chat!`,
           isAdmin: true,
         },
       ]);
@@ -101,8 +101,8 @@ export default function Chat({ room }: { room: string }) {
         }
         onClick={() => setCloseChat(!closeChat)}
       />
-      <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
-      <div className="flex-1 flex flex-col-reverse p-3 scrollbar-thin scrollbar-thumb-kookmin scrollbar-track-white h-32 overflow-y-scroll">
+      <h1 className="text-lg text-center border-b py-2">Chat</h1>
+      <div className="flex-1 flex flex-col-reverse p-3 scrollbar-thin scrollbar-thumb-kookmin scrollbar-track-white h-32 overflow-y-auto">
         <div>
           {messages.map((message, index) => (
             <MessageBox key={index} message={message} />

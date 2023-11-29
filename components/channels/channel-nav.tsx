@@ -9,7 +9,7 @@ import React, { useEffect } from "react";
 import { socket } from "@/lib/socket";
 
 export declare type Channel = {
-  broadcastor: string;
+  broadcaster: string;
   title: string;
   viewers: number;
   thumbnail?: string;
@@ -27,7 +27,7 @@ export default function ChannelNav() {
         const { roomlist } = await res.json();
         setChannels(
           roomlist.map((room: any) => ({
-            broadcastor: room.name,
+            broadcaster: room.name,
             title: "이름 아직 미구현",
             viewers: room.users,
           }))
@@ -66,7 +66,7 @@ export default function ChannelNav() {
       </div>
       {channels.map((channel) => (
         <ChannelNavItem
-          key={channel.broadcastor}
+          key={channel.broadcaster}
           channel={channel}
           foldNav={foldNav}
         />

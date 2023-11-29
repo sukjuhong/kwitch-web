@@ -1,33 +1,32 @@
 "use client";
 
 import Chat from "@/components/channels/chat";
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
 
 export default function ChannelPage({
   params,
 }: {
-  params: { broadcastor: string };
+  params: { broadcaster: string };
 }) {
-  let { broadcastor } = params;
-  broadcastor = decodeURI(broadcastor);
+  let { broadcaster } = params;
+  broadcaster = decodeURI(broadcaster);
 
-  const [onAir, setOnAir] = React.useState(true);
+  const [onAir, setOnAir] = useState(true);
 
   useEffect(() => {
     socket.on("no_room", () => {
-      // TODO: channel is not on air. handle this
       setOnAir(false);
     });
 
-    socket.emit("enter_room", broadcastor);
+    socket.emit("enter_room", broadcaster);
   }, []);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
       {/* TODO: get a video */}
       <h1>{onAir ? "열려있는 방송" : "꺼져있는 방송"}</h1>
-      {onAir && <Chat room={broadcastor} />}
+      {onAir && <Chat room={broadcaster} />}
     </div>
   );
 }
