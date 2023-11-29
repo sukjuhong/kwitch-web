@@ -11,6 +11,7 @@ const nextConfig = {
     },
   ],
   reactStrictMode: false,
+  skipTrailingSlashRedirect: true,
 };
 
 module.exports = nextConfig;
