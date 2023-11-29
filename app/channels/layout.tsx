@@ -13,19 +13,21 @@ export default function ChannelLayout({
 }) {
   const { session } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session) {
       router.replace("/sign-in?redirect=/channels");
     }
+    setLoading(false);
   }, []);
 
-  return session ? (
+  return loading ? (
+    <Loading />
+  ) : (
     <div className="flex-1 flex">
       <ChannelNav />
       <div className="flex-1 flex">{children}</div>
     </div>
-  ) : (
-    <Loading />
   );
 }

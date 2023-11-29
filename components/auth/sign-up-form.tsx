@@ -20,7 +20,7 @@ import React from "react";
 import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
 
-export const formSchema = z.object({
+export const signUpSchema = z.object({
   id: z.string().min(3).max(20),
   username: z.string().min(3).max(20),
   password: z
@@ -36,8 +36,8 @@ export default function SignUpForm() {
   const { signUp } = useSession();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       id: "",
       username: "",
@@ -45,7 +45,7 @@ export default function SignUpForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setLoading(true);
     const ok = await signUp(values);
     if (ok) {

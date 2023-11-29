@@ -12,12 +12,14 @@ export default function BroadcastLayout({
 }) {
   const { session } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = React.useState(true);
 
   useEffect(() => {
     if (!session) {
       router.replace("/sign-in?redirect=/broadcast");
     }
+    setLoading(false);
   }, []);
 
-  return session ? <div className="flex-1 flex">{children}</div> : <Loading />;
+  return loading ? <Loading /> : <div className="flex-1 flex">{children}</div>;
 }

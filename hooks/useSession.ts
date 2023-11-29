@@ -1,20 +1,17 @@
-import { type Session, SessionContext } from "@/components/session-provider";
 import React, { useEffect } from "react";
 import * as z from "zod";
-import { formSchema as SignInSchema } from "@/components/auth/sign-in-form";
-import { formSchema as SignUpSchema } from "@/components/auth/sign-up-form";
 import { Socket, io } from "socket.io-client";
 
-export type SignUpContext = {
-  id: string;
-  username: string;
-  password: string;
-};
+import { signInSchema } from "@/components/auth/sign-in-form";
+import { signUpSchema } from "@/components/auth/sign-up-form";
+
+import type { Session } from "@/lib/session";
+import { SessionContext } from "@/lib/session";
 
 export function useSession(): {
   session: Session | null;
-  signUp: (signUpContext: z.infer<typeof SignUpSchema>) => Promise<boolean>;
-  signIn: (signInContext: z.infer<typeof SignInSchema>) => Promise<boolean>;
+  signUp: (signUpValue: z.infer<typeof signUpSchema>) => Promise<boolean>;
+  signIn: (signInValue: z.infer<typeof signInSchema>) => Promise<boolean>;
   signOut: () => void;
 } {
   if (!SessionContext) {
@@ -26,8 +23,8 @@ export function useSession(): {
     throw new Error("useSession must be used within a SessionProvider");
   }
 
-  async function signIn(formSchema: z.infer<typeof SignInSchema>) {
-    const { id, password } = formSchema;
+  async function signIn(signInValue: z.infer<typeof signInSchema>) {
+    const { id, password } = signInValue;
     const res = await fetch("/api/signin", {
       method: "POST",
       headers: {
@@ -56,8 +53,8 @@ export function useSession(): {
     value!.update(null);
   }
 
-  async function signUp(formSchema: z.infer<typeof SignUpSchema>) {
-    const { id, username, password } = formSchema;
+  async function signUp(signUpValue: z.infer<typeof signUpSchema>) {
+    const { id, username, password } = signUpValue;
     const res = await fetch("/api/signup", {
       method: "POST",
       headers: {

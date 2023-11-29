@@ -1,25 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import Loading from "./loading";
-import { Socket, io } from "socket.io-client";
 
-export type Session = {
-  user: {
-    userid: number;
-    username: string;
-    avatar?: string;
-  };
-};
+import type { Session } from "@/lib/session";
 
-export type SessionContextValue = {
-  session: Session | null;
-  update: React.Dispatch<React.SetStateAction<Session | null>>;
-};
-
-export const SessionContext = React.createContext<
-  SessionContextValue | undefined
->(undefined);
+import { SessionContext } from "@/lib/session";
 
 export default function SessionProvider({
   children,
@@ -29,7 +15,7 @@ export default function SessionProvider({
   const [session, setSession] = React.useState<Session | null>(null);
   const [loading, setLoading] = React.useState(true);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const fetchSession = async () => {
       const res = await fetch("/api/user/info", { cache: "no-cache" });
 

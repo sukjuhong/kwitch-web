@@ -19,7 +19,7 @@ import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
-export const formSchema = z.object({
+export const signInSchema = z.object({
   id: z.string().min(3).max(20),
   password: z
     .string()
@@ -36,15 +36,15 @@ export default function SignInForm() {
 
   const [loading, setLoading] = React.useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
     defaultValues: {
       id: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signInSchema>) => {
     setLoading(true);
     const dst = searchParams.get("redirect") || "/channels";
     const ok = await signIn(values);
