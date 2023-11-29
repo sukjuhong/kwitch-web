@@ -61,6 +61,9 @@ export default function Chat({ room }: { room: string }) {
   }, []);
 
   function submitMessage() {
+    if (!currentMessage) {
+      return;
+    }
     socket.emit("send_message", currentMessage, room, () => {
       setMessages((prev) => [
         ...prev,
@@ -99,7 +102,7 @@ export default function Chat({ room }: { room: string }) {
         onClick={() => setCloseChat(!closeChat)}
       />
       <h1 className="text-lg text-center border-b py-2">STREAM CHAT</h1>
-      <div className="flex-1 flex flex-col-reverse p-3">
+      <div className="flex-1 flex flex-col-reverse p-3 scrollbar-thin scrollbar-thumb-kookmin scrollbar-track-white h-32 overflow-y-scroll">
         <div>
           {messages.map((message, index) => (
             <MessageBox key={index} message={message} />
