@@ -17,7 +17,7 @@ export default function Broadcast() {
   const broadcaster = useMemo(() => String(session!.user.userid), [session]);
 
   const [title, setTitle] = useState("");
-  const [warning, setWarning] = useState("");
+  const [warning, setWarning] = useState(false);
   const [onAir, setOnAir] = useState(false);
 
   const handleClick = () => {
@@ -25,12 +25,12 @@ export default function Broadcast() {
 
     // TODO: check if the broadcast is properly created
     socket.emit("create_room", session!.user.userid, title, (ok: boolean) => {
+      console.log(ok);
       if (!ok) {
-        setWarning(
-          "Failed to create a broadcast. you can only create one broadcast."
-        );
+        setWarning(true);
         return;
       }
+      warning && setWarning(false);
       setOnAir(true);
     });
   };
@@ -62,16 +62,18 @@ export default function Broadcast() {
             </>
           )}
         </div>
-        {!onAir && warning !== "" && (
-          <div className="w-1/2 bg-yellow-300 opacity-80 rounded-xl p-5">
+        {!onAir && warning && (
+          <div className="w-1/2 bg-red-600 text-white opacity-80 rounded-xl p-5">
             <AlertTriangle className="w-6 h-6 inline-block mr-3"></AlertTriangle>
-            <span>If you close this page, The broadcast is turned off.</span>
+            <span>You can't turn on more than one broadcast.</span>
           </div>
         )}
         {onAir && (
-          <div className="w-1/2 bg-yellow-300 opacity-80 rounded-xl p-5">
+          <div className="w-1/2 bg-yellow-600 text-white opacity-80 rounded-xl p-5">
             <AlertTriangle className="w-6 h-6 inline-block mr-3"></AlertTriangle>
-            <span>If you close this page, The broadcast is turned off.</span>
+            <span>
+              If this page is turned off, the broadcast will also be turned off.
+            </span>
           </div>
         )}
       </div>
