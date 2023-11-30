@@ -22,7 +22,7 @@ export default function SessionProvider({
         const data = await res.json();
         setSession({
           user: {
-            userid: data.userId,
+            userid: data.accountId,
             username: data.nickname,
           },
         });

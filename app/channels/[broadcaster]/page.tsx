@@ -13,7 +13,7 @@ export default function ChannelPage({
   let { broadcaster } = params;
   broadcaster = decodeURI(broadcaster);
 
-  const [onAir, setOnAir] = useState(true);
+  const [onAir, setOnAir] = useState(false);
 
   useEffect(() => {
     socket.emit("enter_room", broadcaster, (ok: boolean) => {
@@ -27,7 +27,7 @@ export default function ChannelPage({
     <div className="relative flex flex-1 overflow-hidden">
       {/* TODO: get a video */}
       <h1>{onAir ? "열려있는 방송" : "꺼져있는 방송"}</h1>
-      {onAir && <Chat room={broadcaster} />}
+      {onAir && <Chat broadcaster={broadcaster} />}
     </div>
   );
 }

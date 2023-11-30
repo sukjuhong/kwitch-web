@@ -2,7 +2,7 @@
 
 import { useSession } from "@/hooks/useSession";
 import { socket } from "@/lib/socket";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { SignalIcon } from "@heroicons/react/20/solid";
 export default function Broadcast() {
   const { session } = useSession();
 
+  const broadcaster = useMemo(() => String(session!.user.userid), [session]);
+
   const [title, setTitle] = useState("");
   const [warning, setWarning] = useState("");
   const [onAir, setOnAir] = useState(false);
@@ -22,7 +24,7 @@ export default function Broadcast() {
     if (!title) return;
 
     // TODO: check if the broadcast is properly created
-    socket.emit("create_room", session!.user.username, title, (ok: boolean) => {
+    socket.emit("create_room", session!.user.userid, title, (ok: boolean) => {
       if (!ok) {
         setWarning(
           "Failed to create a broadcast. you can only create one broadcast."
@@ -73,7 +75,7 @@ export default function Broadcast() {
           </div>
         )}
       </div>
-      {onAir && <Chat room={session!.user.username} />}
+      {onAir && <Chat broadcaster={broadcaster} />}
     </div>
   );
 }

@@ -1,16 +1,26 @@
+import { VideoCameraIcon } from "@heroicons/react/20/solid";
+
 export type Message = {
   username: string;
   msg: string;
-  isAdmin: boolean;
+  isAlert?: boolean;
+  isBroadcaster?: boolean;
 };
 
 export default function MessageBox({ message }: { message: Message }) {
+  // TODO: add color to username
+
   return (
-    <div className="rounded-md my-1 px-1">
-      <span>{message.isAdmin ? "" : `${message.username}: `}</span>
-      <span className={message.isAdmin ? "text-gray-500" : ""}>
-        {message.msg}
-      </span>
+    <div className="flex items-center my-1 px-1 break-all">
+      {message.isBroadcaster && (
+        <VideoCameraIcon className="w-4 h-4 p-0.5 rounded-sm mr-1 text-white bg-red-600"></VideoCameraIcon>
+      )}
+      <p>
+        {!message.isAlert && <span>{message.username}:&nbsp;</span>}
+        <span className={message.isAlert ? "text-gray-500" : ""}>
+          {message.msg}
+        </span>
+      </p>
     </div>
   );
 }

@@ -11,12 +11,12 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 
-export default function Chat({ room }: { room: string }) {
+export default function Chat({ broadcaster }: { broadcaster: string }) {
   const { session } = useSession();
 
   // TODO: restrict amount of messages
   const [messages, setMessages] = useState<Message[]>([
-    { username: "admin", msg: "Welcome to the chat!", isAdmin: true },
+    { username: "admin", msg: "Welcome to the chat!", isAlert: true },
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [closeChat, setCloseChat] = useState(false);
@@ -28,7 +28,7 @@ export default function Chat({ room }: { room: string }) {
         {
           username: "admin",
           msg: `${username} joined the chat!`,
-          isAdmin: true,
+          isAlert: true,
         },
       ]);
     });
@@ -36,7 +36,10 @@ export default function Chat({ room }: { room: string }) {
     socket.on(
       "new_message",
       (msg: string, userid: string, username: string) => {
-        setMessages((prev) => [...prev, { username, msg, isAdmin: false }]);
+        setMessages((prev) => [
+          ...prev,
+          { username, msg, isBroadcaster: broadcaster === userid },
+        ]);
       }
     );
 
@@ -50,13 +53,13 @@ export default function Chat({ room }: { room: string }) {
     if (!currentMessage) {
       return;
     }
-    socket.emit("send_message", currentMessage, room, () => {
+    socket.emit("send_message", currentMessage, broadcaster, () => {
       setMessages((prev) => [
         ...prev,
         {
           username: session!.user.username,
           msg: currentMessage,
-          isAdmin: false,
+          isBroadcaster: broadcaster === String(session!.user.userid),
         },
       ]);
     });
