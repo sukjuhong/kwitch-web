@@ -1,6 +1,7 @@
 "use client";
 
 import { useSession } from "@/hooks/useSession";
+import { usePathname } from "next/navigation";
 
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
@@ -11,7 +12,7 @@ import UserButton from "./user-button";
 
 export default function Header() {
   const { session } = useSession();
-  const location = window.location.pathname;
+  const pathname = usePathname();
 
   return (
     <header className="w-full border-b bg-background/95">
@@ -23,7 +24,7 @@ export default function Header() {
           {session ? (
             <>
               <UserButton />
-              {location !== "/broadcast" && <CreateChannelButton />}
+              {pathname !== "/broadcast" && <CreateChannelButton />}
             </>
           ) : (
             <>
