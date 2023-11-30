@@ -1,12 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { socket } from "@/lib/socket";
+
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
-import React, { useEffect } from "react";
-import { socket } from "@/lib/socket";
 
 export declare type Channel = {
   broadcaster: string;
@@ -16,8 +17,8 @@ export declare type Channel = {
 };
 
 export default function ChannelNav() {
-  const [foldNav, setFoldNav] = React.useState(false);
-  const [channels, setChannels] = React.useState<Channel[]>([]);
+  const [foldNav, setFoldNav] = useState(false);
+  const [channels, setChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
     async function getChannels() {

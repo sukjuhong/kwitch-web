@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import { useSession } from "@/hooks/useSession";
+
 import Logo from "./logo";
 import { ModeToggle } from "./mode-toggle";
+import CreateChannelButton from "./create-channel-button";
 import SignInButton from "./auth/sign-in-button";
 import SignUpButton from "./auth/sign-up-button";
 import UserButton from "./user-button";
-import { useSession } from "@/hooks/useSession";
-import CreateChannelButton from "./create-channel-button";
 
 export default function Header() {
   const { session } = useSession();

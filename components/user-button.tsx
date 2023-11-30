@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import { useSession } from "@/hooks/useSession";
+import { useRouter } from "next/navigation";
+
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -10,8 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useSession } from "@/hooks/useSession";
-import { useRouter } from "next/navigation";
 
 export default function UserButton() {
   const { session, signOut } = useSession();

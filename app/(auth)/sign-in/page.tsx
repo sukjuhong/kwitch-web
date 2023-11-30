@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useSession } from "@/hooks/useSession";
-import SignInForm from "@/components/auth/sign-in-form";
+
 import Loading from "@/components/loading";
+import SignInForm from "@/components/auth/sign-in-form";
 
 export default function SignIn() {
   const { session } = useSession();

@@ -1,14 +1,15 @@
 "use client";
 
+import { useSession } from "@/hooks/useSession";
+import { socket } from "@/lib/socket";
+import { useState } from "react";
+
 import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useSession } from "@/hooks/useSession";
-import { socket } from "@/lib/socket";
+import { AlertTriangle } from "lucide-react";
 import { SignalIcon } from "@heroicons/react/20/solid";
-import { AlertTriangle, Loader2 } from "lucide-react";
-import { useState } from "react";
 
 export default function Broadcast() {
   const { session } = useSession();

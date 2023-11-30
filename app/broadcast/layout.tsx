@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
@@ -12,7 +12,8 @@ export default function BroadcastLayout({
 }) {
   const { session } = useSession();
   const router = useRouter();
-  const [loading, setLoading] = React.useState(true);
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!session) {

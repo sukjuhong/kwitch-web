@@ -1,21 +1,20 @@
 "use client";
 
-import React from "react";
-import Loading from "./loading";
-
+import React, { useState, useEffect } from "react";
 import type { Session } from "@/lib/session";
-
 import { SessionContext } from "@/lib/session";
+
+import Loading from "./loading";
 
 export default function SessionProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [session, setSession] = React.useState<Session | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchSession = async () => {
       const res = await fetch("/api/user/info", { cache: "no-cache" });
 

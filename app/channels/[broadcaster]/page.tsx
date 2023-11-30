@@ -1,8 +1,9 @@
 "use client";
 
-import Chat from "@/components/channels/chat";
 import { useEffect, useState } from "react";
 import { socket } from "@/lib/socket";
+
+import Chat from "@/components/channels/chat";
 
 export default function ChannelPage({
   params,

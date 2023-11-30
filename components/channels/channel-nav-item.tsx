@@ -1,10 +1,10 @@
 "use client";
 
+import Link from "next/link";
+
+import type { Channel } from "./channel-nav";
 import { EyeIcon } from "@heroicons/react/20/solid";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import Link from "next/link";
-import { type Channel } from "./channel-nav";
-import React from "react";
 
 export default function ChannelNavItem({
   channel,

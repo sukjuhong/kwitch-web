@@ -1,39 +1,25 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
 import { useSession } from "@/hooks/useSession";
-import { Textarea } from "../ui/textarea";
 import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 import { socket } from "@/lib/socket";
 
-type Message = {
-  username: string;
-  msg: string;
-  isAdmin: boolean;
-};
-
-function MessageBox({ message }: { message: Message }) {
-  return (
-    <div className="rounded-md my-1 px-1">
-      <span>{message.isAdmin ? "" : `${message.username}: `}</span>
-      <span className={message.isAdmin ? "text-gray-500" : ""}>
-        {message.msg}
-      </span>
-    </div>
-  );
-}
+import type { Message } from "./message-box";
+import MessageBox from "./message-box";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
 
 export default function Chat({ room }: { room: string }) {
-  // TODO: restrict amount of messages
+  const { session } = useSession();
 
+  // TODO: restrict amount of messages
   const [messages, setMessages] = useState<Message[]>([
     { username: "admin", msg: "Welcome to the chat!", isAdmin: true },
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [closeChat, setCloseChat] = useState(false);
-  const { session } = useSession();
 
   useEffect(() => {
     socket.on("chatting_enter", (username: string) => {
