@@ -16,7 +16,7 @@ export default function Broadcast() {
   const [onAir, setOnAir] = useState(false);
 
   const handleClick = () => {
-    socket.emit("create_room", title);
+    socket.emit("create_room", session!.user.username, title);
     setOnAir(true);
   };
 
