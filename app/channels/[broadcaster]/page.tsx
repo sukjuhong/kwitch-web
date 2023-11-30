@@ -15,11 +15,11 @@ export default function ChannelPage({
   const [onAir, setOnAir] = useState(true);
 
   useEffect(() => {
-    socket.on("no_room", () => {
-      setOnAir(false);
+    socket.emit("enter_room", broadcaster, (ok: boolean) => {
+      if (ok) {
+        setOnAir(true);
+      }
     });
-
-    socket.emit("enter_room", broadcaster);
   }, []);
 
   return (

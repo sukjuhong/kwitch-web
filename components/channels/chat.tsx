@@ -90,7 +90,7 @@ export default function Chat({ room }: { room: string }) {
   return (
     <div
       className={
-        "absolute h-full border-l w-80 flex flex-col transition-all duration-500 " +
+        "absolute h-full border-l w-80 flex flex-col transition-all duration-500 bg-gray-100 dark:bg-gray-900 " +
         (closeChat ? "-right-80" : "right-0")
       }
     >

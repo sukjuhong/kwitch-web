@@ -11,6 +11,7 @@ import CreateChannelButton from "./create-channel-button";
 
 export default function Header() {
   const { session } = useSession();
+  const location = window.location.pathname;
 
   return (
     <header className="w-full border-b bg-background/95">
@@ -22,7 +23,7 @@ export default function Header() {
           {session ? (
             <>
               <UserButton />
-              <CreateChannelButton />
+              {location !== "/broadcast" && <CreateChannelButton />}
             </>
           ) : (
             <>
