@@ -52,6 +52,11 @@ export default function SignUpForm() {
     const ok = await signUp(values);
 
     if (ok) {
+      toast({
+        title: "Your sign up request is successful.",
+        description: "You can sign in now.",
+        variant: "success",
+      });
       router.push("/sign-in");
     } else {
       toast({
