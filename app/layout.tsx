@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SessionProvider from "@/components/session-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Kwitch",
@@ -28,6 +29,7 @@ export default function RootLayout({
             <Header />
 
             {children}
+            <Toaster />
 
             <Footer />
           </SessionProvider>

@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
+import { useToast } from "../ui/use-toast";
 
 export const signUpSchema = z.object({
   id: z.string().min(3).max(20),
@@ -35,6 +36,7 @@ export default function SignUpForm() {
   const [loading, setLoading] = React.useState(false);
   const { signUp } = useSession();
   const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -48,8 +50,15 @@ export default function SignUpForm() {
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setLoading(true);
     const ok = await signUp(values);
+
     if (ok) {
       router.push("/sign-in");
+    } else {
+      toast({
+        title: "Your sign up request is failed.",
+        description: "The id already exists.",
+        variant: "destructive",
+      });
     }
     setLoading(false);
   };

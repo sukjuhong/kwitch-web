@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
 import React from "react";
+import { useToast } from "../ui/use-toast";
 
 export const signInSchema = z.object({
   id: z.string().min(3).max(20),
@@ -33,6 +34,7 @@ export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useSession();
+  const { toast } = useToast();
 
   const [loading, setLoading] = React.useState(false);
 
@@ -48,9 +50,17 @@ export default function SignInForm() {
     setLoading(true);
     const dst = searchParams.get("redirect") || "/channels";
     const ok = await signIn(values);
+
     if (ok) {
-      router.push(dst);
+      router.replace(dst);
+    } else {
+      toast({
+        title: "Your sign in request is failed.",
+        description: "Invalid ID or password.",
+        variant: "destructive",
+      });
     }
+
     setLoading(false);
   };
 
