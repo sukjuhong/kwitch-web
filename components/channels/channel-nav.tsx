@@ -26,10 +26,11 @@ export default function ChannelNav() {
 
       if (res.ok) {
         const { roomlist } = await res.json();
+        console.log(roomlist);
         setChannels(
           roomlist.map((room: any) => ({
             broadcaster: room.name,
-            title: "이름 아직 미구현",
+            title: room.title,
             viewers: room.users,
           }))
         );
@@ -44,7 +45,7 @@ export default function ChannelNav() {
 
   return (
     <div
-      className={`border-r bg-gray-100 dark:bg-gray-900 min-w-[56px] ${
+      className={`border-r bg-gray-200 dark:bg-gray-900 min-w-[56px] ${
         foldNav ? "" : "xl:w-80"
       } flex flex-col`}
     >

@@ -2,7 +2,7 @@ import React from "react";
 
 export type Session = {
   user: {
-    userid: number;
+    userid: string;
     username: string;
     avatar?: string;
   };
