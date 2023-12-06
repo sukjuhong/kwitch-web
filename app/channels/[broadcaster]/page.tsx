@@ -18,6 +18,8 @@ export default function ChannelPage({
 
   const [onAir, setOnAir] = useState(false);
 
+  // TODO: handle when broadcaster turn on the stream after broadcaster turn off the stream
+
   useEffect(() => {
     socket.emit("enter_room", broadcaster, (ok: boolean) => {
       if (ok) {

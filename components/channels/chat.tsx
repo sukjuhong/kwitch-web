@@ -54,6 +54,12 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
         ]);
       }
     );
+
+    return () => {
+      socket.off("welcome");
+      socket.off("bye");
+      socket.off("new_message");
+    };
   }, []);
 
   function submitMessage() {

@@ -42,10 +42,6 @@ export default function ChannelNav() {
     socket.on("room_change", () => {
       getChannels();
     });
-
-    return () => {
-      socket.off("room_change");
-    };
   }, []);
 
   return (

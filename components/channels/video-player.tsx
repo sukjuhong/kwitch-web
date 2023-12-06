@@ -43,9 +43,13 @@ export default function VideoPlayer({ roomName }: { roomName: string }) {
     });
 
     return () => {
+      // TODO: leave room
       peerConnectionRef.current.close();
+      socket.off("offer");
+      socket.off("ice");
     };
   }, []);
 
+  // TODO: video overflow
   return <video className="h-full bg-black" ref={videoRef} autoPlay />;
 }

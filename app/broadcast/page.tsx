@@ -27,10 +27,6 @@ export default function Broadcast() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    socket.on("answer", (socketId: string, answer: RTCSessionDescription) => {
-      peerConnectionsRef.current[socketId].setRemoteDescription(answer);
-    });
-
     socket.on("welcome", (socketId: string) => {
       const peerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -62,9 +58,34 @@ export default function Broadcast() {
       delete peerConnectionsRef.current[socketId];
     });
 
+    socket.on("answer", (socketId: string, answer: RTCSessionDescription) => {
+      peerConnectionsRef.current[socketId].setRemoteDescription(answer);
+    });
+
     socket.on("ice", (socketId: string, candidate: RTCIceCandidate) => {
       peerConnectionsRef.current[socketId].addIceCandidate(candidate);
     });
+
+    return () => {
+      socket.off("welcome");
+      socket.off("bye");
+      socket.off("ice");
+      socket.off("answer");
+
+      for (const socketId in peerConnectionsRef.current) {
+        peerConnectionsRef.current[socketId].close();
+        delete peerConnectionsRef.current[socketId];
+      }
+
+      socket.emit("destroy_room", user!.id, (ok: boolean, result: string) => {
+        if (ok) {
+          toast({
+            title: "Broadcast ended",
+            description: "Your broadcast has been ended automatically.",
+          });
+        }
+      });
+    };
   }, []);
 
   function startBroadcast() {
@@ -101,6 +122,8 @@ export default function Broadcast() {
 
     videoRef.current!.srcObject = stream;
     streamRef.current = stream;
+
+    // TODO: change screen
   }
 
   return (
