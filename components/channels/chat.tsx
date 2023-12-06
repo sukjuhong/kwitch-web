@@ -23,12 +23,23 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
   const [closeChat, setCloseChat] = useState(false);
 
   useEffect(() => {
-    socket.on("chatting_enter", (username: string) => {
+    socket.on("welcome", (_: string, username: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: "admin",
           msg: `${username} joined the chat!`,
+          isAlert: true,
+        },
+      ]);
+    });
+
+    socket.on("bye", (_: string, username: string) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          username: "admin",
+          msg: `${username} left the chat!`,
           isAlert: true,
         },
       ]);
@@ -43,13 +54,6 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
         ]);
       }
     );
-
-    // TODO: handle disconnect
-
-    return () => {
-      socket.off("chatting_enter");
-      socket.off("new_message");
-    };
   }, []);
 
   function submitMessage() {
