@@ -3,16 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "@/hooks/useSession";
 import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
-import { socket } from "@/lib/socket";
 
 import type { Message } from "./message-box";
 import MessageBox from "./message-box";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
+import { useSocket } from "@/lib/socket";
 
 export default function Chat({ broadcaster }: { broadcaster: string }) {
   const { session } = useSession();
+  const { socket } = useSocket();
 
   // TODO: restrict amount of messages
   const [messages, setMessages] = useState<Message[]>([
@@ -42,6 +43,8 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
         ]);
       }
     );
+
+    // TODO: handle disconnect
 
     return () => {
       socket.off("chatting_enter");

@@ -16,7 +16,7 @@ export default function SessionProvider({
 
   useEffect(() => {
     const fetchSession = async () => {
-      const res = await fetch("/api/user/info", { cache: "no-cache" });
+      const res = await fetch("/api/user/me", { cache: "no-cache" });
 
       if (res.ok) {
         const data = await res.json();

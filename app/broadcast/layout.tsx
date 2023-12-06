@@ -18,7 +18,9 @@ export default function BroadcastLayout({
   useEffect(() => {
     if (!session) {
       router.replace("/sign-in?redirect=/broadcast");
+      return;
     }
+
     setLoading(false);
   }, []);
 

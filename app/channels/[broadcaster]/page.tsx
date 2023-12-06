@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { socket } from "@/lib/socket";
 
 import Chat from "@/components/channels/chat";
+import VideoPlayer from "@/components/channels/video-player";
+import { useSocket } from "@/lib/socket";
 
 export default function ChannelPage({
   params,
@@ -12,6 +13,8 @@ export default function ChannelPage({
 }) {
   let { broadcaster } = params;
   broadcaster = decodeURI(broadcaster);
+
+  const { socket } = useSocket();
 
   const [onAir, setOnAir] = useState(false);
 
@@ -25,8 +28,7 @@ export default function ChannelPage({
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
-      {/* TODO: get a video */}
-      <h1>{onAir ? "열려있는 방송" : "꺼져있는 방송"}</h1>
+      <VideoPlayer roomName={broadcaster} />
       {onAir && <Chat broadcaster={broadcaster} />}
     </div>
   );

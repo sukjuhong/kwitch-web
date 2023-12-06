@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { socket } from "@/lib/socket";
 
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
+import { useSocket } from "@/lib/socket";
 
 export declare type Channel = {
   broadcaster: string;
@@ -17,16 +17,17 @@ export declare type Channel = {
 };
 
 export default function ChannelNav() {
+  const { socket } = useSocket();
+
   const [foldNav, setFoldNav] = useState(false);
   const [channels, setChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
     async function getChannels() {
-      const res = await fetch("/api/rooms");
+      const res = await fetch("/api/room/list");
 
       if (res.ok) {
         const { roomlist } = await res.json();
-        console.log(roomlist);
         setChannels(
           roomlist.map((room: any) => ({
             broadcaster: room.name,
@@ -41,6 +42,10 @@ export default function ChannelNav() {
     socket.on("room_change", () => {
       getChannels();
     });
+
+    return () => {
+      socket.off("room_change");
+    };
   }, []);
 
   return (
