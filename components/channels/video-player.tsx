@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useSession } from "@/hooks/useSession";
 import { useSocket } from "@/lib/socket";
 
 export default function VideoPlayer({ roomName }: { roomName: string }) {

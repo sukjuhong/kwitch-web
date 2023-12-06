@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "@/hooks/useSession";
 import { usePathname } from "next/navigation";
 
 import Logo from "./logo";
@@ -9,9 +8,11 @@ import CreateChannelButton from "./create-channel-button";
 import SignInButton from "./auth/sign-in-button";
 import SignUpButton from "./auth/sign-up-button";
 import UserButton from "./user-button";
+import { useAuth } from "@/lib/auth";
+import { Skeleton } from "./ui/skeleton";
 
 export default function Header() {
-  const { session } = useSession();
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
 
   return (
@@ -21,7 +22,16 @@ export default function Header() {
         <div className="flex-1" />
         <div className="flex items-center gap-x-5">
           <ModeToggle />
-          {session ? (
+          {isLoading ? (
+            <>
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-10 w-[100px]" />
+                </div>
+              </div>
+            </>
+          ) : user ? (
             <>
               <UserButton />
               {pathname !== "/broadcast" && <CreateChannelButton />}

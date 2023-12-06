@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "@/hooks/useSession";
 import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 
 import type { Message } from "./message-box";
@@ -10,9 +9,10 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useSocket } from "@/lib/socket";
+import { useAuth } from "@/lib/auth";
 
 export default function Chat({ broadcaster }: { broadcaster: string }) {
-  const { session } = useSession();
+  const { user } = useAuth();
   const { socket } = useSocket();
 
   // TODO: restrict amount of messages
@@ -60,9 +60,9 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
       setMessages((prev) => [
         ...prev,
         {
-          username: session!.user.username,
+          username: user!.username,
           msg: currentMessage,
-          isBroadcaster: broadcaster === String(session!.user.userid),
+          isBroadcaster: broadcaster === String(user!.id),
         },
       ]);
     });

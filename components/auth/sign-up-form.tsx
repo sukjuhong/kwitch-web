@@ -17,24 +17,30 @@ import {
 } from "../ui/form";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
 import { useToast } from "../ui/use-toast";
+import { useAuth } from "@/lib/auth";
 
-export const signUpSchema = z.object({
-  id: z.string().min(3).max(20),
-  username: z.string().min(3).max(20),
-  password: z
-    .string()
-    .regex(
-      new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
-      "Password must contain at least 8 characters, including letters, numbers, and special characters."
-    ),
-});
+export const signUpSchema = z
+  .object({
+    id: z.string().min(3).max(20),
+    username: z.string().min(3).max(20),
+    password: z
+      .string()
+      .regex(
+        new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
+        "Password must contain at least 8 characters, including letters, numbers, and special characters."
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUpForm() {
   const [loading, setLoading] = React.useState(false);
-  const { signUp } = useSession();
+  const { signUp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -44,6 +50,7 @@ export default function SignUpForm() {
       id: "",
       username: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -80,7 +87,6 @@ export default function SignUpForm() {
               <FormControl>
                 <Input placeholder="username" {...field} />
               </FormControl>
-              <FormDescription>This is your id for login.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -94,9 +100,6 @@ export default function SignUpForm() {
               <FormControl>
                 <Input placeholder="username" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -110,7 +113,23 @@ export default function SignUpForm() {
               <FormControl>
                 <Input placeholder="password" type="password" {...field} />
               </FormControl>
-              <FormDescription>This is your private password.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="confirm password"
+                  type="password"
+                  {...field}
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}

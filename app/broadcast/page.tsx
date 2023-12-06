@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession } from "@/hooks/useSession";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,10 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { SignalIcon } from "@heroicons/react/20/solid";
 import { useToast } from "@/components/ui/use-toast";
 import { useSocket } from "@/lib/socket";
+import { useAuth } from "@/lib/auth";
 
 export default function Broadcast() {
-  const { session } = useSession();
+  const { user } = useAuth();
   const { socket } = useSocket();
   const { toast } = useToast();
 
@@ -45,7 +45,7 @@ export default function Broadcast() {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("ice", event.candidate, session!.user.userid);
+          socket.emit("ice", event.candidate, user!.id);
         }
       };
 
@@ -53,11 +53,7 @@ export default function Broadcast() {
         .createOffer()
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => {
-          socket.emit(
-            "offer",
-            peerConnection.localDescription,
-            session!.user.userid
-          );
+          socket.emit("offer", peerConnection.localDescription, user!.id);
         });
     });
 
@@ -79,7 +75,7 @@ export default function Broadcast() {
     setWarning(false);
     socket.emit(
       "create_room",
-      session!.user.userid,
+      user!.id,
       title,
       (ok: boolean, result: string) => {
         if (!ok) {
@@ -167,7 +163,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat broadcaster={session!.user.userid} />}
+      {onAir && <Chat broadcaster={user!.id} />}
     </div>
   );
 }

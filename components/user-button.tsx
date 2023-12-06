@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -12,9 +11,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { useAuth } from "@/lib/auth";
 
 export default function UserButton() {
-  const { session, signOut } = useSession();
+  const { user, signOut } = useAuth();
   const router = useRouter();
 
   function handleClick() {
@@ -26,12 +26,12 @@ export default function UserButton() {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src={session?.user.avatar} alt="@shadcn" />
+          <AvatarImage src={user?.avatar} alt="@shadcn" />
           <AvatarFallback>You</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuLabel>{session?.user.username}</DropdownMenuLabel>
+        <DropdownMenuLabel>{user?.username}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleClick}>Sign Out</DropdownMenuItem>
       </DropdownMenuContent>

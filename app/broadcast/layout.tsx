@@ -1,28 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useSession } from "@/hooks/useSession";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
+import { useAuth } from "@/lib/auth";
 
 export default function BroadcastLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { session } = useSession();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
+  if (isLoading) {
+    return <Loading />;
+  }
 
-  useEffect(() => {
-    if (!session) {
-      router.replace("/sign-in?redirect=/broadcast");
-      return;
-    }
+  if (!user) {
+    router.replace("/sign-in?redirect=/broadcast");
+    return null;
+  }
 
-    setLoading(false);
-  }, []);
-
-  return loading ? <Loading /> : <div className="flex-1 flex">{children}</div>;
+  return <div className="flex-1 flex">{children}</div>;
 }

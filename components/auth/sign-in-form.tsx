@@ -15,10 +15,10 @@ import {
   FormMessage,
 } from "../ui/form";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "@/hooks/useSession";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { useToast } from "../ui/use-toast";
+import { useAuth } from "@/lib/auth";
 
 export const signInSchema = z.object({
   id: z.string().min(3).max(20),
@@ -33,7 +33,7 @@ export const signInSchema = z.object({
 export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn } = useSession();
+  const { signIn } = useAuth();
   const { toast } = useToast();
 
   const [loading, setLoading] = React.useState(false);
