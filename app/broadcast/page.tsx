@@ -123,7 +123,20 @@ export default function Broadcast() {
     videoRef.current!.srcObject = stream;
     streamRef.current = stream;
 
-    // TODO: change screen
+    for (const socketId in peerConnectionsRef.current) {
+      const peerConnection = peerConnectionsRef.current[socketId];
+
+      stream.getTracks().forEach((track) => {
+        peerConnection.addTrack(track, stream);
+      });
+
+      peerConnection
+        .createOffer()
+        .then((offer) => peerConnection.setLocalDescription(offer))
+        .then(() => {
+          socket.emit("offer", peerConnection.localDescription, user!.id);
+        });
+    }
   }
 
   return (
