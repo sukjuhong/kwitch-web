@@ -26,6 +26,10 @@ export default function ChannelPage({
         setOnAir(true);
       }
     });
+
+    return () => {
+      socket.emit("leave_room", broadcaster);
+    };
   }, []);
 
   return (
