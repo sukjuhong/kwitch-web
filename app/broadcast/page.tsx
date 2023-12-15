@@ -17,6 +17,12 @@ export default function Broadcast() {
   const { socket } = useSocket();
   const { toast } = useToast();
 
+  if (!user) {
+    throw new Error("User is not defined");
+  }
+
+  const roomName = user.id;
+
   const peerConnectionsRef = useRef<Record<string, RTCPeerConnection>>({});
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -27,11 +33,13 @@ export default function Broadcast() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const peerConnections = peerConnectionsRef.current;
+
     socket.on("welcome", (socketId: string) => {
       const peerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
-      peerConnectionsRef.current[socketId] = peerConnection;
+      peerConnections[socketId] = peerConnection;
 
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => {
@@ -41,7 +49,7 @@ export default function Broadcast() {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("ice", event.candidate, user!.id);
+          socket.emit("ice", event.candidate, roomName);
         }
       };
 
@@ -49,21 +57,21 @@ export default function Broadcast() {
         .createOffer()
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => {
-          socket.emit("offer", peerConnection.localDescription, user!.id);
+          socket.emit("offer", peerConnection.localDescription, roomName);
         });
     });
 
     socket.on("bye", (socketId: string) => {
-      peerConnectionsRef.current[socketId].close();
-      delete peerConnectionsRef.current[socketId];
+      peerConnections[socketId].close();
+      delete peerConnections[socketId];
     });
 
     socket.on("answer", (socketId: string, answer: RTCSessionDescription) => {
-      peerConnectionsRef.current[socketId].setRemoteDescription(answer);
+      peerConnections[socketId].setRemoteDescription(answer);
     });
 
     socket.on("ice", (socketId: string, candidate: RTCIceCandidate) => {
-      peerConnectionsRef.current[socketId].addIceCandidate(candidate);
+      peerConnections[socketId].addIceCandidate(candidate);
     });
 
     return () => {
@@ -72,12 +80,14 @@ export default function Broadcast() {
       socket.off("ice");
       socket.off("answer");
 
-      for (const socketId in peerConnectionsRef.current) {
-        peerConnectionsRef.current[socketId].close();
-        delete peerConnectionsRef.current[socketId];
+      for (const socketId in peerConnections) {
+        peerConnections[socketId].close();
+        delete peerConnections[socketId];
       }
 
-      socket.emit("destroy_room", user!.id, (ok: boolean, result: string) => {
+      socket.emit("close", roomName);
+
+      socket.emit("destroy_room", roomName, (ok: boolean, result: string) => {
         if (ok) {
           toast({
             title: "Broadcast ended",
@@ -96,7 +106,7 @@ export default function Broadcast() {
     setWarning(false);
     socket.emit(
       "create_room",
-      user!.id,
+      roomName,
       title,
       (ok: boolean, result: string) => {
         if (!ok) {
@@ -134,7 +144,7 @@ export default function Broadcast() {
         .createOffer()
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => {
-          socket.emit("offer", peerConnection.localDescription, user!.id);
+          socket.emit("offer", peerConnection.localDescription, roomName);
         });
     }
   }
@@ -199,7 +209,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat broadcaster={user!.id} />}
+      {onAir && <Chat broadcaster={roomName} />}
     </div>
   );
 }
