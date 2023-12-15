@@ -23,8 +23,8 @@ import { useAuth } from "@/lib/auth";
 
 export const signUpSchema = z
   .object({
-    id: z.string().min(3).max(20),
-    username: z.string().min(3).max(20),
+    id: z.string().min(5).max(20),
+    username: z.string().min(2).max(12),
     password: z
       .string()
       .regex(
