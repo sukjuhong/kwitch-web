@@ -13,7 +13,7 @@ import { useAuth } from "@/lib/auth";
 
 export default function Chat({ broadcaster }: { broadcaster: string }) {
   const { user } = useAuth();
-  const { socket } = useSocket();
+  const socket = useSocket();
 
   // TODO: restrict amount of messages
   const [messages, setMessages] = useState<Message[]>([
@@ -60,7 +60,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
       socket.off("bye");
       socket.off("new_message");
     };
-  }, [broadcaster, socket]);
+  }, []);
 
   function submitMessage() {
     if (!currentMessage) {

@@ -14,8 +14,8 @@ import { useAuth } from "@/lib/auth";
 
 export default function Broadcast() {
   const { user } = useAuth();
-  const { socket } = useSocket();
   const { toast } = useToast();
+  const socket = useSocket();
 
   if (!user) {
     throw new Error("User is not defined");
@@ -80,6 +80,10 @@ export default function Broadcast() {
       socket.off("ice");
       socket.off("answer");
 
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+      }
+
       for (const socketId in peerConnections) {
         peerConnections[socketId].close();
         delete peerConnections[socketId];
@@ -87,7 +91,7 @@ export default function Broadcast() {
 
       socket.emit("close", roomName);
 
-      socket.emit("destroy_room", roomName, (ok: boolean, result: string) => {
+      socket.emit("destroy_room", roomName, (ok: boolean, _: string) => {
         if (ok) {
           toast({
             title: "Broadcast ended",
@@ -96,7 +100,7 @@ export default function Broadcast() {
         }
       });
     };
-  }, [roomName, socket, toast]);
+  }, []);
 
   function startBroadcast() {
     if (!title || onAir) return;

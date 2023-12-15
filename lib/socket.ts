@@ -1,13 +1,7 @@
 import { createContext, useContext } from "react";
 import { Socket } from "socket.io-client";
 
-interface SocketContextValue {
-  socket: Socket;
-}
-
-export const SocketContext = createContext<SocketContextValue | undefined>(
-  undefined
-);
+export const SocketContext = createContext<Socket | undefined>(undefined);
 
 export const useSocket = () => {
   const context = useContext(SocketContext);

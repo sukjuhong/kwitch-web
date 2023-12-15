@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from "react";
 import { useSocket } from "@/lib/socket";
 
 export default function VideoPlayer({ roomName }: { roomName: string }) {
-  const { socket } = useSocket();
+  const socket = useSocket();
 
   const peerConnectionRef = useRef<RTCPeerConnection>(
     new RTCPeerConnection({
@@ -46,7 +46,7 @@ export default function VideoPlayer({ roomName }: { roomName: string }) {
       socket.off("offer");
       socket.off("ice");
     };
-  }, [roomName, socket]);
+  }, []);
 
   // TODO: video overflow
   return <video className="h-full bg-black" ref={videoRef} autoPlay />;

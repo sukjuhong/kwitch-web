@@ -17,7 +17,7 @@ export declare type Channel = {
 };
 
 export default function ChannelNav() {
-  const { socket } = useSocket();
+  const socket = useSocket();
 
   const [foldNav, setFoldNav] = useState(false);
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -42,7 +42,7 @@ export default function ChannelNav() {
     socket.on("room_change", () => {
       getChannels();
     });
-  }, [socket]);
+  }, []);
 
   return (
     <div

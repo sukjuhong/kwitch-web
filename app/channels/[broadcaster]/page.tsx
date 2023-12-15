@@ -16,7 +16,7 @@ export default function ChannelPage({
   let { broadcaster } = params;
   broadcaster = decodeURI(broadcaster);
 
-  const { socket } = useSocket();
+  const socket = useSocket();
   const { toast } = useToast();
 
   const [onAir, setOnAir] = useState(false);
@@ -41,7 +41,7 @@ export default function ChannelPage({
     return () => {
       socket.emit("leave_room", broadcaster);
     };
-  }, [broadcaster, socket, toast]);
+  }, []);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
