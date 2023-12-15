@@ -41,7 +41,7 @@ export default function ChannelPage({
     return () => {
       socket.emit("leave_room", broadcaster);
     };
-  }, []);
+  }, [broadcaster, socket, toast]);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">

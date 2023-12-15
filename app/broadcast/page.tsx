@@ -96,7 +96,7 @@ export default function Broadcast() {
         }
       });
     };
-  }, []);
+  }, [roomName, socket, toast]);
 
   function startBroadcast() {
     if (!title || onAir) return;
@@ -181,7 +181,7 @@ export default function Broadcast() {
         {!onAir && warning && (
           <div className="w-1/2 bg-red-600 text-white opacity-80 rounded-xl p-5">
             <AlertTriangle className="w-6 h-6 inline-block mr-3"></AlertTriangle>
-            <span>You can't turn on more than one broadcast.</span>
+            <span>You can&apos;t turn on more than one broadcast.</span>
           </div>
         )}
         {onAir && (

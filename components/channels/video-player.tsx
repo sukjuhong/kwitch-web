@@ -14,24 +14,22 @@ export default function VideoPlayer({ roomName }: { roomName: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    const peerConnection = peerConnectionRef.current;
+
     socket.on("offer", async (_: string, offer: RTCSessionDescription) => {
-      peerConnectionRef.current
+      peerConnection
         .setRemoteDescription(offer)
-        .then(() => peerConnectionRef.current.createAnswer())
-        .then((sdp) => peerConnectionRef.current.setLocalDescription(sdp))
+        .then(() => peerConnection.createAnswer())
+        .then((sdp) => peerConnection.setLocalDescription(sdp))
         .then(() => {
-          socket.emit(
-            "answer",
-            peerConnectionRef.current.localDescription,
-            roomName
-          );
+          socket.emit("answer", peerConnection.localDescription, roomName);
         });
 
-      peerConnectionRef.current.ontrack = (event) => {
+      peerConnection.ontrack = (event) => {
         videoRef.current!.srcObject = event.streams[0];
       };
 
-      peerConnectionRef.current.onicecandidate = (event) => {
+      peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
           socket.emit("ice", event.candidate, roomName);
         }
@@ -39,16 +37,16 @@ export default function VideoPlayer({ roomName }: { roomName: string }) {
     });
 
     socket.on("ice", async (_: string, candidate: RTCIceCandidate) => {
-      await peerConnectionRef.current.addIceCandidate(candidate);
+      await peerConnection.addIceCandidate(candidate);
     });
 
     return () => {
       // TODO: leave room
-      peerConnectionRef.current.close();
+      peerConnection.close();
       socket.off("offer");
       socket.off("ice");
     };
-  }, []);
+  }, [roomName, socket]);
 
   // TODO: video overflow
   return <video className="h-full bg-black" ref={videoRef} autoPlay />;

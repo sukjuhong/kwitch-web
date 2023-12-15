@@ -60,7 +60,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
       socket.off("bye");
       socket.off("new_message");
     };
-  }, []);
+  }, [broadcaster, socket]);
 
   function submitMessage() {
     if (!currentMessage) {
