@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSocket } from "@/lib/socket";
 
-export default function VideoPlayer({ roomName }: { roomName: string }) {
+export default function VideoPlayer({ roomid: roomName }: { roomid: string }) {
   const socket = useSocket();
 
   const peerConnectionRef = useRef<RTCPeerConnection>(

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { AuthContext, SignInParams, SignUpParams, User } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default function AuthProvider({
   children,
@@ -14,7 +15,7 @@ export default function AuthProvider({
 
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/user/me");
+      const res = await fetch("/api/user/me", { cache: "no-cache" });
 
       if (res.ok) {
         const data = await res.json();
@@ -37,6 +38,7 @@ export default function AuthProvider({
         "Content-Type": "application/json",
       },
       body: JSON.stringify(signInParams),
+      cache: "no-cache",
     });
 
     if (res.ok) {
@@ -57,24 +59,16 @@ export default function AuthProvider({
         "Content-Type": "application/json",
       },
       body: JSON.stringify(signUpParams),
+      cache: "no-cache",
     });
-
-    if (res.ok) {
-      const data = await res.json();
-      setUser({
-        id: data.accountId,
-        username: data.nickname,
-      });
-    }
 
     return res.ok;
   }
 
   function signOut() {
-    fetch("/api/auth/signout", {
+    fetch("/api/signout", {
       method: "POST",
-    });
-    setUser(null);
+    }).then(() => setUser(null));
   }
 
   return (

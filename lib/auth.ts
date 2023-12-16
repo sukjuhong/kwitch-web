@@ -13,9 +13,8 @@ export interface SignInParams {
 
 export interface SignUpParams {
   id: string;
-  username: string;
+  nickname: string;
   password: string;
-  confirmPassword: string;
 }
 
 interface AuthContextValue {

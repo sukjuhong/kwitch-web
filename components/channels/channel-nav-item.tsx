@@ -15,7 +15,7 @@ export default function ChannelNavItem({
 }) {
   return (
     <div>
-      <Link href={`/channels/${channel.broadcaster}`} prefetch={false}>
+      <Link href={`/channels/${channel.broadcaster.id}`} prefetch={false}>
         <div className="flex p-3 items-center xl:border-b">
           <Avatar className="border-2 border-red-500 w-8 h-8">
             <AvatarImage src={channel.thumbnail} />
@@ -30,7 +30,9 @@ export default function ChannelNavItem({
                   <span className="text-sm">{channel.viewers}</span>
                 </div>
               </div>
-              <span>{channel.broadcaster}</span>
+              <span className="text-sm text-gray-500">
+                {channel.broadcaster.username}
+              </span>
             </div>
           )}
         </div>

@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -19,6 +20,7 @@ import { Loader2 } from "lucide-react";
 import React from "react";
 import { useToast } from "../ui/use-toast";
 import { useAuth } from "@/lib/auth";
+import { Checkbox } from "../ui/checkbox";
 
 export const signInSchema = z.object({
   id: z.string().min(3).max(20),
@@ -28,6 +30,7 @@ export const signInSchema = z.object({
       new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
       "Password must contain at least 8 characters, including letters, numbers, and special characters."
     ),
+  isRemember: z.boolean(),
 });
 
 export default function SignInForm() {
@@ -43,6 +46,7 @@ export default function SignInForm() {
     defaultValues: {
       id: "",
       password: "",
+      isRemember: false,
     },
   });
 
@@ -90,6 +94,23 @@ export default function SignInForm() {
                 <Input placeholder="password" type="password" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="isRemember"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Remember me</FormLabel>
+              </div>
             </FormItem>
           )}
         />

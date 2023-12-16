@@ -47,8 +47,8 @@ export default function ChannelPage({
     <div className="relative flex flex-1 overflow-hidden">
       {onAir ? (
         <>
-          <VideoPlayer roomName={broadcaster} />
-          <Chat broadcaster={broadcaster} />
+          <VideoPlayer roomid={broadcaster} />
+          <Chat roomid={broadcaster} />
         </>
       ) : (
         <div className="flex-1 flex flex-col justify-center items-center">

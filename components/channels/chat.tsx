@@ -11,7 +11,7 @@ import { Textarea } from "../ui/textarea";
 import { useSocket } from "@/lib/socket";
 import { useAuth } from "@/lib/auth";
 
-export default function Chat({ broadcaster }: { broadcaster: string }) {
+export default function Chat({ roomid }: { roomid: string }) {
   const { user } = useAuth();
   const socket = useSocket();
 
@@ -48,9 +48,10 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
     socket.on(
       "new_message",
       (msg: string, userid: string, username: string) => {
+        console.log(roomid, userid);
         setMessages((prev) => [
           ...prev,
-          { username, msg, isBroadcaster: broadcaster === userid },
+          { username, msg, isBroadcaster: roomid === userid },
         ]);
       }
     );
@@ -66,13 +67,13 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
     if (!currentMessage) {
       return;
     }
-    socket.emit("send_message", currentMessage, broadcaster, () => {
+    socket.emit("send_message", currentMessage, roomid, (result: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: user!.username,
           msg: currentMessage,
-          isBroadcaster: broadcaster === String(user!.id),
+          isBroadcaster: roomid === user!.id,
         },
       ]);
     });

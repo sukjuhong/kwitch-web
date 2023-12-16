@@ -10,7 +10,7 @@ import ChannelNavItem from "./channel-nav-item";
 import { useSocket } from "@/lib/socket";
 
 export declare type Channel = {
-  broadcaster: string;
+  broadcaster: { id: string; username: string };
   title: string;
   viewers: number;
   thumbnail?: string;
@@ -30,7 +30,10 @@ export default function ChannelNav() {
         const { roomlist } = await res.json();
         setChannels(
           roomlist.map((room: any) => ({
-            broadcaster: room.name,
+            broadcaster: {
+              id: room.broadcaster.id,
+              username: room.broadcaster.nickname,
+            },
             title: room.title,
             viewers: room.users,
           }))
@@ -69,7 +72,7 @@ export default function ChannelNav() {
       </div>
       {channels.map((channel) => (
         <ChannelNavItem
-          key={channel.broadcaster}
+          key={channel.broadcaster.id}
           channel={channel}
           foldNav={foldNav}
         />

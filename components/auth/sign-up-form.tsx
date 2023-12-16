@@ -40,8 +40,8 @@ export const signUpSchema = z
 
 export default function SignUpForm() {
   const [loading, setLoading] = React.useState(false);
-  const { signUp } = useAuth();
   const router = useRouter();
+  const { signUp } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -56,7 +56,11 @@ export default function SignUpForm() {
 
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setLoading(true);
-    const ok = await signUp(values);
+    const ok = await signUp({
+      id: values.id,
+      nickname: values.username,
+      password: values.password,
+    });
 
     if (ok) {
       toast({

@@ -21,7 +21,7 @@ export default function Broadcast() {
     throw new Error("User is not defined");
   }
 
-  const roomName = user.id;
+  const roomid = user.id;
 
   const peerConnectionsRef = useRef<Record<string, RTCPeerConnection>>({});
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -30,7 +30,6 @@ export default function Broadcast() {
   const [title, setTitle] = useState("");
   const [warning, setWarning] = useState(false);
   const [onAir, setOnAir] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const peerConnections = peerConnectionsRef.current;
@@ -49,7 +48,7 @@ export default function Broadcast() {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("ice", event.candidate, roomName);
+          socket.emit("ice", event.candidate, roomid);
         }
       };
 
@@ -57,7 +56,7 @@ export default function Broadcast() {
         .createOffer()
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => {
-          socket.emit("offer", peerConnection.localDescription, roomName);
+          socket.emit("offer", peerConnection.localDescription, roomid);
         });
     });
 
@@ -89,9 +88,9 @@ export default function Broadcast() {
         delete peerConnections[socketId];
       }
 
-      socket.emit("close", roomName);
+      socket.emit("close", roomid);
 
-      socket.emit("destroy_room", roomName, (ok: boolean, _: string) => {
+      socket.emit("destroy_room", roomid, (ok: boolean, _: string) => {
         if (ok) {
           toast({
             title: "Broadcast ended",
@@ -105,23 +104,12 @@ export default function Broadcast() {
   function startBroadcast() {
     if (!title || onAir) return;
 
-    setIsLoading(true);
-    setOnAir(true);
-    setWarning(false);
-    socket.emit(
-      "create_room",
-      roomName,
-      title,
-      (ok: boolean, result: string) => {
-        if (!ok) {
-          setWarning(true);
-          setOnAir(false);
-          return;
-        }
-
-        setIsLoading(false);
-      }
-    );
+    socket.emit("create_room", roomid, title, (ok: boolean, result: string) => {
+      if (ok) {
+        setWarning(false);
+        setOnAir(true);
+      } else setWarning(true);
+    });
   }
 
   async function getScreen() {
@@ -148,7 +136,7 @@ export default function Broadcast() {
         .createOffer()
         .then((offer) => peerConnection.setLocalDescription(offer))
         .then(() => {
-          socket.emit("offer", peerConnection.localDescription, roomName);
+          socket.emit("offer", peerConnection.localDescription, roomid);
         });
     }
   }
@@ -168,12 +156,8 @@ export default function Broadcast() {
           />
         </div>
         <div className="flex items-center gap-x-3 mb-5">
-          <Button
-            onClick={startBroadcast}
-            disabled={isLoading || onAir}
-            className="mr-3"
-          >
-            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Start"}
+          <Button onClick={startBroadcast} disabled={onAir} className="mr-3">
+            Start
           </Button>
           {onAir && (
             <>
@@ -213,7 +197,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat broadcaster={roomName} />}
+      {onAir && <Chat roomid={roomid} />}
     </div>
   );
 }
