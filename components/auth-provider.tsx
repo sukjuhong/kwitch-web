@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import { AuthContext, SignInParams, SignUpParams, User } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
+import type { User } from "@/types";
+import { toast } from "./ui/use-toast";
 
 export default function AuthProvider({
   children,
@@ -15,14 +15,11 @@ export default function AuthProvider({
 
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/user/me", { cache: "no-cache" });
+      const res = await fetch("/api/users/me", { cache: "no-cache" });
 
       if (res.ok) {
         const data = await res.json();
-        setUser({
-          id: data.accountId,
-          username: data.nickname,
-        });
+        setUser(data);
       }
 
       setIsLoading(false);
@@ -32,7 +29,7 @@ export default function AuthProvider({
   }, []);
 
   async function signIn(signInParams: SignInParams) {
-    const res = await fetch("/api/signin", {
+    const res = await fetch("/api/auth/sign-in", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +41,6 @@ export default function AuthProvider({
     if (res.ok) {
       const data = await res.json();
       setUser({
-        id: data.accountId,
         username: data.nickname,
       });
     }
@@ -53,7 +49,7 @@ export default function AuthProvider({
   }
 
   async function signUp(signUpParams: SignUpParams) {
-    const res = await fetch("/api/signup", {
+    const res = await fetch("/api/auth/sign-up", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -66,9 +62,12 @@ export default function AuthProvider({
   }
 
   function signOut() {
-    fetch("/api/signout", {
+    fetch("/api/auth/sign-out", {
       method: "POST",
-    }).then(() => setUser(null));
+    }).then(() => {
+      setUser(null);
+      toast({ title: "You are signed out." });
+    });
   }
 
   return (

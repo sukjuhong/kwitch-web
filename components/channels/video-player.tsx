@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useSocket } from "@/lib/socket";
+import { useSocket } from "../socket-provider";
 
-export default function VideoPlayer({ roomid: roomName }: { roomid: string }) {
+/**
+ * @param broadcaster broadcaster's username
+ */
+export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
   const socket = useSocket();
 
   const peerConnectionRef = useRef<RTCPeerConnection>(
@@ -16,13 +19,13 @@ export default function VideoPlayer({ roomid: roomName }: { roomid: string }) {
   useEffect(() => {
     const peerConnection = peerConnectionRef.current;
 
-    socket.on("offer", async (_: string, offer: RTCSessionDescription) => {
+    socket.on("offer", async (offer: RTCSessionDescription) => {
       peerConnection
         .setRemoteDescription(offer)
         .then(() => peerConnection.createAnswer())
         .then((sdp) => peerConnection.setLocalDescription(sdp))
         .then(() => {
-          socket.emit("answer", peerConnection.localDescription, roomName);
+          socket.emit("answer", broadcaster, peerConnection.localDescription);
         });
 
       peerConnection.ontrack = (event) => {
@@ -31,17 +34,16 @@ export default function VideoPlayer({ roomid: roomName }: { roomid: string }) {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("ice", event.candidate, roomName);
+          socket.emit("ice", broadcaster, event.candidate);
         }
       };
     });
 
-    socket.on("ice", async (_: string, candidate: RTCIceCandidate) => {
+    socket.on("ice", async (candidate: RTCIceCandidate) => {
       await peerConnection.addIceCandidate(candidate);
     });
 
     return () => {
-      // TODO: leave room
       peerConnection.close();
       socket.off("offer");
       socket.off("ice");

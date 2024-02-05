@@ -23,8 +23,7 @@ import { useAuth } from "@/lib/auth";
 
 export const signUpSchema = z
   .object({
-    id: z.string().min(5).max(20),
-    username: z.string().min(2).max(12),
+    username: z.string().min(3).max(20),
     password: z
       .string()
       .regex(
@@ -47,7 +46,6 @@ export default function SignUpForm() {
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      id: "",
       username: "",
       password: "",
       confirmPassword: "",
@@ -57,8 +55,7 @@ export default function SignUpForm() {
   const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setLoading(true);
     const ok = await signUp({
-      id: values.id,
-      nickname: values.username,
+      username: values.username,
       password: values.password,
     });
 
@@ -82,19 +79,6 @@ export default function SignUpForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>id</FormLabel>
-              <FormControl>
-                <Input placeholder="username" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="username"

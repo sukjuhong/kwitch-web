@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import VideoPlayer from "@/components/channels/video-player";
-import { useSocket } from "@/lib/socket";
 import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
+import { useSocket } from "@/components/socket-provider";
 
 export default function ChannelPage({
   params,
@@ -24,13 +24,18 @@ export default function ChannelPage({
   // TODO: handle when broadcaster turn on the stream after broadcaster turn off the stream
 
   useEffect(() => {
-    socket.emit("enter_room", broadcaster, (ok: boolean) => {
-      if (ok) {
-        setOnAir(true);
+    socket.emit(
+      "channels:join",
+      broadcaster,
+      (ok: boolean, message: string) => {
+        console.log("TEST");
+        if (ok) {
+          setOnAir(true);
+        }
       }
-    });
+    );
 
-    socket.on("on_destroy_room", () => {
+    socket.on("channels:destroy", () => {
       toast({
         title: "The broadcaster closed the channel.",
         variant: "destructive",
@@ -39,7 +44,11 @@ export default function ChannelPage({
     });
 
     return () => {
-      socket.emit("leave_room", broadcaster);
+      socket.emit(
+        "channels:leave",
+        broadcaster,
+        (success: boolean, message: string) => {}
+      );
     };
   }, []);
 
@@ -47,8 +56,8 @@ export default function ChannelPage({
     <div className="relative flex flex-1 overflow-hidden">
       {onAir ? (
         <>
-          <VideoPlayer roomid={broadcaster} />
-          <Chat roomid={broadcaster} />
+          <VideoPlayer broadcaster={broadcaster} />
+          <Chat broadcaster={broadcaster} />
         </>
       ) : (
         <div className="flex-1 flex flex-col justify-center items-center">

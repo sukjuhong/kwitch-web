@@ -1,19 +1,13 @@
 import React, { useCallback } from "react";
-
-export interface User {
-  id: string;
-  username: string;
-  avatar?: string;
-}
+import type { User } from "@/types";
 
 export interface SignInParams {
-  id: string;
+  username: string;
   password: string;
 }
 
 export interface SignUpParams {
-  id: string;
-  nickname: string;
+  username: string;
   password: string;
 }
 

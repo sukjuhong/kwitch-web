@@ -1,20 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
-import { useSocket } from "@/lib/socket";
-
-export declare type Channel = {
-  broadcaster: { id: string; username: string };
-  title: string;
-  viewers: number;
-  thumbnail?: string;
-};
+import type { Channel } from "@/types";
+import { useSocket } from "../socket-provider";
 
 export default function ChannelNav() {
   const socket = useSocket();
@@ -23,27 +17,18 @@ export default function ChannelNav() {
   const [channels, setChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
-    async function getChannels() {
-      const res = await fetch("/api/room/list");
-
+    const fetchChannels = async () => {
+      const res = await fetch("/api/channels");
       if (res.ok) {
-        const { roomlist } = await res.json();
-        setChannels(
-          roomlist.map((room: any) => ({
-            broadcaster: {
-              id: room.broadcaster.id,
-              username: room.broadcaster.nickname,
-            },
-            title: room.title,
-            viewers: room.users,
-          }))
-        );
+        const data = await res.json();
+        setChannels(data);
       }
-    }
-    getChannels();
+    };
+    fetchChannels();
 
-    socket.on("room_change", () => {
-      getChannels();
+    socket.on("channels:update", (channel: Channel) => {
+      // TODO: efficient update
+      fetchChannels();
     });
   }, []);
 
@@ -72,7 +57,7 @@ export default function ChannelNav() {
       </div>
       {channels.map((channel) => (
         <ChannelNavItem
-          key={channel.broadcaster.id}
+          key={channel.broadcaster}
           channel={channel}
           foldNav={foldNav}
         />
