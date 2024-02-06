@@ -7,6 +7,7 @@ import VideoPlayer from "@/components/channels/video-player";
 import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "@/components/socket-provider";
+import { SocketResponse } from "@/types/socket";
 
 export default function ChannelPage({
   params,
@@ -19,21 +20,20 @@ export default function ChannelPage({
   const socket = useSocket();
   const { toast } = useToast();
 
-  const [onAir, setOnAir] = useState(false);
+  const [onAir, setOnAir] = useState<boolean>(false);
 
   // TODO: handle when broadcaster turn on the stream after broadcaster turn off the stream
 
   useEffect(() => {
-    socket.emit(
-      "channels:join",
-      broadcaster,
-      (ok: boolean, message: string) => {
-        console.log("TEST");
-        if (ok) {
-          setOnAir(true);
-        }
+    socket.emit("channels:join", broadcaster, (res: SocketResponse) => {
+      if (res.success) {
+        setOnAir(true);
       }
-    );
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!onAir) return;
 
     socket.on("channels:destroy", () => {
       toast({
@@ -44,13 +44,19 @@ export default function ChannelPage({
     });
 
     return () => {
-      socket.emit(
-        "channels:leave",
-        broadcaster,
-        (success: boolean, message: string) => {}
-      );
+      socket.emit("channels:leave", broadcaster, (res: SocketResponse) => {
+        if (!res.success) {
+          toast({
+            title: "Failed to leave the channel.",
+            description: "Something is wrong. Refresh the page.",
+            variant: "destructive",
+          });
+        }
+      });
+
+      socket.off("channels:destroy");
     };
-  }, []);
+  }, [onAir]);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">

@@ -9,3 +9,10 @@ export interface Channel {
   viewers: number;
   thumbnail?: string;
 }
+
+export interface Message {
+  username: string;
+  message: string;
+  isAlert?: boolean;
+  isBroadcaster?: boolean;
+}
