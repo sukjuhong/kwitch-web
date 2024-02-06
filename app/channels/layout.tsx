@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import ChannelNav from "@/components/channels/channel-nav";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
-import { useSocket } from "@/lib/socket";
 import { useAuth } from "@/lib/auth";
 
 export default function ChannelLayout({

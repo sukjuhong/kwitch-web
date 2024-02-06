@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
-import SocketProvider from "@/components/socket-provider";
+import { SocketProvider } from "@/components/socket-provider";
 import AuthProvider from "@/components/auth-provider";
 
 export const metadata: Metadata = {
@@ -28,10 +28,11 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
+              <Toaster />
+
               <Header />
               {children}
               <Footer />
-              <Toaster />
             </ThemeProvider>
           </SocketProvider>
         </AuthProvider>

@@ -1,11 +1,5 @@
 import { VideoCameraIcon } from "@heroicons/react/20/solid";
-
-export type Message = {
-  username: string;
-  msg: string;
-  isAlert?: boolean;
-  isBroadcaster?: boolean;
-};
+import type { Message } from "@/types";
 
 export default function MessageBox({ message }: { message: Message }) {
   // TODO: add color to username
@@ -18,7 +12,7 @@ export default function MessageBox({ message }: { message: Message }) {
       <p>
         {!message.isAlert && <span>{message.username}:&nbsp;</span>}
         <span className={message.isAlert ? "text-gray-500" : ""}>
-          {message.msg}
+          {message.message}
         </span>
       </p>
     </div>

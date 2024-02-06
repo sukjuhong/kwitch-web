@@ -3,63 +3,67 @@
 import React, { useEffect, useState } from "react";
 import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 
-import type { Message } from "./message-box";
+import type { Message } from "@/types";
 import MessageBox from "./message-box";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import { useSocket } from "@/lib/socket";
 import { useAuth } from "@/lib/auth";
+import { useSocket } from "../socket-provider";
+import { SocketResponse } from "@/types/socket";
 
-export default function Chat({ roomid }: { roomid: string }) {
+/**
+ * @param broadcaster broadcaster's username
+ */
+export default function Chat({ broadcaster }: { broadcaster: string }) {
   const { user } = useAuth();
   const socket = useSocket();
 
+  if (!user) {
+    throw new Error("User is not defined");
+  }
+
   // TODO: restrict amount of messages
   const [messages, setMessages] = useState<Message[]>([
-    { username: "admin", msg: "Welcome to the chat!", isAlert: true },
+    { username: "admin", message: "Welcome to the chat!", isAlert: true },
   ]);
   const [currentMessage, setCurrentMessage] = useState("");
   const [closeChat, setCloseChat] = useState(false);
 
   useEffect(() => {
-    socket.on("welcome", (_: string, username: string) => {
+    socket.on("channels:joined", (username: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: "admin",
-          msg: `${username} joined the chat!`,
+          message: `${username} joined the chat!`,
           isAlert: true,
         },
       ]);
     });
 
-    socket.on("bye", (_: string, username: string) => {
+    socket.on("channels:left", (username: string) => {
       setMessages((prev) => [
         ...prev,
         {
           username: "admin",
-          msg: `${username} left the chat!`,
+          message: `${username} left the chat!`,
           isAlert: true,
         },
       ]);
     });
 
     socket.on(
-      "new_message",
-      (msg: string, userid: string, username: string) => {
-        console.log(roomid, userid);
-        setMessages((prev) => [
-          ...prev,
-          { username, msg, isBroadcaster: roomid === userid },
-        ]);
+      "messages:sent",
+      (username: string, message: string, isBroadcaster: boolean) => {
+        setMessages((prev) => [...prev, { username, message, isBroadcaster }]);
       }
     );
 
     return () => {
-      socket.off("welcome");
-      socket.off("bye");
-      socket.off("new_message");
+      socket.off("channels:joined");
+      socket.off("channels:left");
+      socket.off("messages:sent");
     };
   }, []);
 
@@ -67,16 +71,21 @@ export default function Chat({ roomid }: { roomid: string }) {
     if (!currentMessage) {
       return;
     }
-    socket.emit("send_message", currentMessage, roomid, (result: string) => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          username: user!.username,
-          msg: currentMessage,
-          isBroadcaster: roomid === user!.id,
-        },
-      ]);
-    });
+    socket.emit(
+      "messages:send",
+      broadcaster,
+      currentMessage,
+      (res: SocketResponse) => {
+        setMessages((prev) => [
+          ...prev,
+          {
+            username: user!.username,
+            message: currentMessage,
+            isBroadcaster: broadcaster === user!.username,
+          },
+        ]);
+      }
+    );
     setCurrentMessage("");
   }
 

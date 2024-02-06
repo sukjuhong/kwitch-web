@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { SignalIcon } from "@heroicons/react/20/solid";
 import { useToast } from "@/components/ui/use-toast";
-import { useSocket } from "@/lib/socket";
 import { useAuth } from "@/lib/auth";
+import { SocketResponse } from "@/types/socket";
+import { useSocket } from "@/components/socket-provider";
 
 export default function Broadcast() {
   const { user } = useAuth();
@@ -21,94 +22,93 @@ export default function Broadcast() {
     throw new Error("User is not defined");
   }
 
-  const roomid = user.id;
-
   const peerConnectionsRef = useRef<Record<string, RTCPeerConnection>>({});
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
   const [title, setTitle] = useState("");
-  const [warning, setWarning] = useState(false);
+  const [warning, setWarning] = useState("");
   const [onAir, setOnAir] = useState(false);
 
   useEffect(() => {
+    if (!onAir) return;
+
     const peerConnections = peerConnectionsRef.current;
 
-    socket.on("welcome", (socketId: string) => {
+    socket.on("p2p:joined", async (socketId: string) => {
       const peerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
       peerConnections[socketId] = peerConnection;
-
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => {
           peerConnection.addTrack(track, streamRef.current!);
         });
       }
-
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("ice", event.candidate, roomid);
+          socket.emit("p2p:ice", user.username, event.candidate);
         }
       };
 
-      peerConnection
-        .createOffer()
-        .then((offer) => peerConnection.setLocalDescription(offer))
-        .then(() => {
-          socket.emit("offer", peerConnection.localDescription, roomid);
-        });
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("p2p:offer", user.username, peerConnection.localDescription);
     });
 
-    socket.on("bye", (socketId: string) => {
+    socket.on("p2p:left", (socketId: string) => {
       peerConnections[socketId].close();
       delete peerConnections[socketId];
     });
 
-    socket.on("answer", (socketId: string, answer: RTCSessionDescription) => {
-      peerConnections[socketId].setRemoteDescription(answer);
-    });
+    socket.on(
+      "p2p:answer",
+      (socketId: string, answer: RTCSessionDescription) => {
+        peerConnections[socketId].setRemoteDescription(answer);
+      }
+    );
 
-    socket.on("ice", (socketId: string, candidate: RTCIceCandidate) => {
+    socket.on("p2p:ice", (socketId: string, candidate: RTCIceCandidate) => {
       peerConnections[socketId].addIceCandidate(candidate);
     });
 
     return () => {
-      socket.off("welcome");
-      socket.off("bye");
-      socket.off("ice");
-      socket.off("answer");
-
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
-
       for (const socketId in peerConnections) {
         peerConnections[socketId].close();
         delete peerConnections[socketId];
       }
 
-      socket.emit("close", roomid);
-
-      socket.emit("destroy_room", roomid, (ok: boolean, _: string) => {
-        if (ok) {
+      socket.emit("channels:delete", (res: SocketResponse) => {
+        if (res.success) {
           toast({
             title: "Broadcast ended",
             description: "Your broadcast has been ended automatically.",
           });
+          return;
         }
       });
+
+      socket.off("p2p:joined");
+      socket.off("p2p:left");
+      socket.off("p2p:offer");
+      socket.off("p2p:answer");
+      socket.off("p2p:ice");
     };
-  }, []);
+  }, [onAir]);
 
   function startBroadcast() {
     if (!title || onAir) return;
 
-    socket.emit("create_room", roomid, title, (ok: boolean, result: string) => {
-      if (ok) {
-        setWarning(false);
+    socket.emit("channels:create", title, (res: SocketResponse) => {
+      if (res.success) {
+        setWarning("");
         setOnAir(true);
-      } else setWarning(true);
+        return;
+      }
+      setWarning(res.message);
     });
   }
 
@@ -132,12 +132,9 @@ export default function Broadcast() {
         peerConnection.addTrack(track, stream);
       });
 
-      peerConnection
-        .createOffer()
-        .then((offer) => peerConnection.setLocalDescription(offer))
-        .then(() => {
-          socket.emit("offer", peerConnection.localDescription, roomid);
-        });
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
+      socket.emit("p2p:offer", user!.username, offer);
     }
   }
 
@@ -169,7 +166,7 @@ export default function Broadcast() {
         {!onAir && warning && (
           <div className="w-1/2 bg-red-600 text-white opacity-80 rounded-xl p-5">
             <AlertTriangle className="w-6 h-6 inline-block mr-3"></AlertTriangle>
-            <span>You can&apos;t turn on more than one broadcast.</span>
+            <span>{warning}</span>
           </div>
         )}
         {onAir && (
@@ -197,7 +194,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat roomid={roomid} />}
+      {onAir && <Chat broadcaster={user.username} />}
     </div>
   );
 }

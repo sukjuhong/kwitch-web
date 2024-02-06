@@ -23,7 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { Checkbox } from "../ui/checkbox";
 
 export const signInSchema = z.object({
-  id: z.string().min(3).max(20),
+  username: z.string().min(3).max(20),
   password: z
     .string()
     .regex(
@@ -44,7 +44,7 @@ export default function SignInForm() {
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      id: "",
+      username: "",
       password: "",
       isRemember: false,
     },
@@ -73,12 +73,12 @@ export default function SignInForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
-          name="id"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>id</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="id" {...field} />
+                <Input placeholder="username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

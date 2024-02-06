@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-
-import type { Channel } from "./channel-nav";
 import { EyeIcon } from "@heroicons/react/20/solid";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import type { Channel } from "@/types";
 
 export default function ChannelNavItem({
   channel,
@@ -15,7 +14,7 @@ export default function ChannelNavItem({
 }) {
   return (
     <div>
-      <Link href={`/channels/${channel.broadcaster.id}`} prefetch={false}>
+      <Link href={`/channels/${channel.broadcaster}`} prefetch={false}>
         <div className="flex p-3 items-center xl:border-b">
           <Avatar className="border-2 border-red-500 w-8 h-8">
             <AvatarImage src={channel.thumbnail} />
@@ -31,7 +30,7 @@ export default function ChannelNavItem({
                 </div>
               </div>
               <span className="text-sm text-gray-500">
-                {channel.broadcaster.username}
+                {channel.broadcaster}
               </span>
             </div>
           )}

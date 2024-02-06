@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import VideoPlayer from "@/components/channels/video-player";
-import { useSocket } from "@/lib/socket";
 import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
+import { useSocket } from "@/components/socket-provider";
+import { SocketResponse } from "@/types/socket";
 
 export default function ChannelPage({
   params,
@@ -19,18 +20,22 @@ export default function ChannelPage({
   const socket = useSocket();
   const { toast } = useToast();
 
-  const [onAir, setOnAir] = useState(false);
+  const [onAir, setOnAir] = useState<boolean>(false);
 
   // TODO: handle when broadcaster turn on the stream after broadcaster turn off the stream
 
   useEffect(() => {
-    socket.emit("enter_room", broadcaster, (ok: boolean) => {
-      if (ok) {
+    socket.emit("channels:join", broadcaster, (res: SocketResponse) => {
+      if (res.success) {
         setOnAir(true);
       }
     });
+  }, []);
 
-    socket.on("on_destroy_room", () => {
+  useEffect(() => {
+    if (!onAir) return;
+
+    socket.on("channels:destroy", () => {
       toast({
         title: "The broadcaster closed the channel.",
         variant: "destructive",
@@ -39,16 +44,26 @@ export default function ChannelPage({
     });
 
     return () => {
-      socket.emit("leave_room", broadcaster);
+      socket.emit("channels:leave", broadcaster, (res: SocketResponse) => {
+        if (!res.success) {
+          toast({
+            title: "Failed to leave the channel.",
+            description: "Something is wrong. Refresh the page.",
+            variant: "destructive",
+          });
+        }
+      });
+
+      socket.off("channels:destroy");
     };
-  }, []);
+  }, [onAir]);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
       {onAir ? (
         <>
-          <VideoPlayer roomid={broadcaster} />
-          <Chat roomid={broadcaster} />
+          <VideoPlayer broadcaster={broadcaster} />
+          <Chat broadcaster={broadcaster} />
         </>
       ) : (
         <div className="flex-1 flex flex-col justify-center items-center">
