@@ -18,4 +18,4 @@ Built on Next.js 14
 
 ## License
 
-[MIT license](https://github.com/sukjuhong/1am/main/LICENSE.md)
+[MIT license](https://github.com/SA-TermProject-Team-Kwitch/kwitch-web/edit/main/LICENCE.md)
