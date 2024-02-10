@@ -19,13 +19,7 @@ export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
   useEffect(() => {
     const peerConnection = peerConnectionRef.current;
 
-    socket.on("p2p:offer", async (offer: RTCSessionDescription) => {
-      await peerConnection.setRemoteDescription(offer);
-
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit("p2p:answer", broadcaster, peerConnection.localDescription);
-
+    socket.on("p2p:offer", (offer: RTCSessionDescription) => {
       peerConnection.ontrack = (event) => {
         videoRef.current!.srcObject = event.streams[0];
       };
@@ -35,19 +29,28 @@ export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
           socket.emit("p2p:ice", broadcaster, event.candidate);
         }
       };
+
+      peerConnection
+        .setRemoteDescription(offer)
+        .then(() => peerConnection.createAnswer())
+        .then((sdp) => peerConnection.setLocalDescription(sdp))
+        .then(() => {
+          socket.emit(
+            "p2p:answer",
+            broadcaster,
+            peerConnection.localDescription
+          );
+        });
     });
 
-    socket.on(
-      "p2p:ice",
-      async (socketId: string, candidate: RTCIceCandidate) => {
-        await peerConnection.addIceCandidate(candidate);
-      }
-    );
+    socket.on("p2p:ice", (socketId: string, candidate: RTCIceCandidate) => {
+      peerConnection.addIceCandidate(candidate);
+    });
 
     return () => {
-      peerConnection.close();
       socket.off("p2p:offer");
       socket.off("p2p:ice");
+      peerConnection.close();
     };
   }, []);
 
