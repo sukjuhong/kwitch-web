@@ -19,7 +19,7 @@ export default function AuthProvider({
 
       if (res.ok) {
         const data = await res.json();
-        setUser(data);
+        setUser(data.user);
       }
 
       setIsLoading(false);
@@ -40,9 +40,7 @@ export default function AuthProvider({
 
     if (res.ok) {
       const data = await res.json();
-      setUser({
-        username: data.nickname,
-      });
+      setUser(data.user);
     }
 
     return res.ok;

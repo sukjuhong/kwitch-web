@@ -35,14 +35,16 @@ export default function Broadcast() {
 
     const peerConnections = peerConnectionsRef.current;
 
-    socket.on("p2p:joined", async (socketId: string) => {
+    socket.on("p2p:joined", (socketId: string) => {
       const peerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
       peerConnections[socketId] = peerConnection;
+
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, streamRef.current!);
+        const stream = streamRef.current;
+        stream.getTracks().forEach((track) => {
+          peerConnection.addTrack(track, stream);
         });
       }
       peerConnection.onicecandidate = (event) => {
@@ -51,9 +53,16 @@ export default function Broadcast() {
         }
       };
 
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      socket.emit("p2p:offer", user.username, peerConnection.localDescription);
+      peerConnection
+        .createOffer()
+        .then((offer) => peerConnection.setLocalDescription(offer))
+        .then(() => {
+          socket.emit(
+            "p2p:offer",
+            user.username,
+            peerConnection.localDescription
+          );
+        });
     });
 
     socket.on("p2p:left", (socketId: string) => {
@@ -73,6 +82,12 @@ export default function Broadcast() {
     });
 
     return () => {
+      socket.off("p2p:joined");
+      socket.off("p2p:left");
+      socket.off("p2p:offer");
+      socket.off("p2p:answer");
+      socket.off("p2p:ice");
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
@@ -90,12 +105,6 @@ export default function Broadcast() {
           return;
         }
       });
-
-      socket.off("p2p:joined");
-      socket.off("p2p:left");
-      socket.off("p2p:offer");
-      socket.off("p2p:answer");
-      socket.off("p2p:ice");
     };
   }, [onAir]);
 
@@ -132,9 +141,16 @@ export default function Broadcast() {
         peerConnection.addTrack(track, stream);
       });
 
-      const offer = await peerConnection.createOffer();
-      await peerConnection.setLocalDescription(offer);
-      socket.emit("p2p:offer", user!.username, offer);
+      peerConnection
+        .createOffer()
+        .then((offer) => peerConnection.setLocalDescription(offer))
+        .then(() => {
+          socket.emit(
+            "p2p:offer",
+            user!.username,
+            peerConnection.localDescription
+          );
+        });
     }
   }
 
