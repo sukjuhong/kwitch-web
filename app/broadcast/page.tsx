@@ -11,7 +11,7 @@ import { SignalIcon } from "@heroicons/react/20/solid";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/lib/auth";
 import { SocketResponse } from "@/types/socket";
-import { useSocket } from "@/components/socket-provider";
+import { useSocket } from "@/app/components/socket-provider";
 
 export default function Broadcast() {
   const { user } = useAuth();

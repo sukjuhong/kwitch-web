@@ -9,7 +9,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { useAuth } from "@/lib/auth";
-import { useSocket } from "../socket-provider";
+import { useSocket } from "../../app/components/socket-provider";
 import { SocketResponse } from "@/types/socket";
 
 /**

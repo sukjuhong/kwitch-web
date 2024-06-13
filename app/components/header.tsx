@@ -2,14 +2,13 @@
 
 import { usePathname } from "next/navigation";
 
-import Logo from "./logo";
+import Logo from "../../components/logo";
 import { ModeToggle } from "./mode-toggle";
 import CreateChannelButton from "./create-channel-button";
-import SignInButton from "./auth/sign-in-button";
-import SignUpButton from "./auth/sign-up-button";
+import SignInButton from "./sign-in-button";
 import UserButton from "./user-button";
 import { useAuth } from "@/lib/auth";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../../components/ui/skeleton";
 
 export default function Header() {
   const { user, isLoading } = useAuth();
@@ -39,7 +38,6 @@ export default function Header() {
           ) : (
             <>
               <SignInButton />
-              <SignUpButton />
             </>
           )}
         </div>
