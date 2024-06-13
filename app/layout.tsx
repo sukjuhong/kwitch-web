@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+import { ThemeProvider } from "@/app/components/theme-provider";
+import Header from "@/app/components/header";
+import Footer from "@/app/components/footer";
 import { Toaster } from "@/components/ui/toaster";
-import { SocketProvider } from "@/components/socket-provider";
-import AuthProvider from "@/components/auth-provider";
+import { SocketProvider } from "@/app/components/socket-provider";
+import AuthProvider from "@/app/components/auth-provider";
 
 export const metadata: Metadata = {
   title: "Kwitch",

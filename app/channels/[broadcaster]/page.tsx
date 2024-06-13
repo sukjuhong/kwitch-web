@@ -6,7 +6,7 @@ import Chat from "@/components/channels/chat";
 import VideoPlayer from "@/components/channels/video-player";
 import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
-import { useSocket } from "@/components/socket-provider";
+import { useSocket } from "@/app/components/socket-provider";
 import { SocketResponse } from "@/types/socket";
 
 export default function ChannelPage({

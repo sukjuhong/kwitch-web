@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "../../../../components/ui/input";
+import { Button } from "../../../../components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,63 +14,71 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+} from "../../../../components/ui/form";
+import { useRouter } from "next/navigation";
 import React from "react";
-import { useToast } from "../ui/use-toast";
+import { Loader2 } from "lucide-react";
+import { useToast } from "../../../../components/ui/use-toast";
 import { useAuth } from "@/lib/auth";
-import { Checkbox } from "../ui/checkbox";
 
-export const signInSchema = z.object({
-  username: z.string().min(3).max(20),
-  password: z
-    .string()
-    .regex(
-      new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
-      "Password must contain at least 8 characters, including letters, numbers, and special characters."
-    ),
-  isRemember: z.boolean(),
-});
+export const signUpSchema = z
+  .object({
+    username: z.string().min(3).max(20),
+    password: z
+      .string()
+      .regex(
+        new RegExp(/^(?=.*[a-zA-Z])(?=.*[!@#$%^*+=-])(?=.*[0-9]).{8,15}$/),
+        "Password must contain at least 8 characters, including letters, numbers, and special characters."
+      ),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
-export default function SignInForm() {
+export default function SignUpForm() {
+  const [loading, setLoading] = React.useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { signIn } = useAuth();
+  const { signUp } = useAuth();
   const { toast } = useToast();
 
-  const [loading, setLoading] = React.useState(false);
-
-  const form = useForm<z.infer<typeof signInSchema>>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
     defaultValues: {
       username: "",
       password: "",
-      isRemember: false,
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof signInSchema>) => {
+  const onSubmit = async (values: z.infer<typeof signUpSchema>) => {
     setLoading(true);
-    const dst = searchParams.get("redirect") || "/channels";
-    const ok = await signIn(values);
+    const ok = await signUp({
+      username: values.username,
+      password: values.password,
+    });
 
     if (ok) {
-      router.replace(dst);
+      toast({
+        title: "Your sign up request is successful.",
+        description: "You can sign in now.",
+        variant: "success",
+      });
+      router.push("/sign-in");
     } else {
       toast({
-        title: "Your sign in request is failed.",
-        description: "Invalid ID or password.",
+        title: "Your sign up request is failed.",
+        description: "The id already exists.",
         variant: "destructive",
       });
     }
-
     setLoading(false);
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
           name="username"
@@ -99,18 +107,18 @@ export default function SignInForm() {
         />
         <FormField
           control={form.control}
-          name="isRemember"
+          name="confirmPassword"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-4">
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+                <Input
+                  placeholder="confirm password"
+                  type="password"
+                  {...field}
                 />
               </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Remember me</FormLabel>
-              </div>
+              <FormMessage />
             </FormItem>
           )}
         />
