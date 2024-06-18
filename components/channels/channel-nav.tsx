@@ -57,7 +57,7 @@ export default function ChannelNav() {
       </div>
       {channels.map((channel) => (
         <ChannelNavItem
-          key={channel.broadcaster}
+          key={channel.broadcaster.username}
           channel={channel}
           foldNav={foldNav}
         />
