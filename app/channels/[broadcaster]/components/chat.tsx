@@ -5,11 +5,11 @@ import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 
 import type { Message } from "@/types";
 import MessageBox from "./message-box";
-import { Label } from "../ui/label";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
+import { Label } from "../../../../components/ui/label";
+import { Button } from "../../../../components/ui/button";
+import { Textarea } from "../../../../components/ui/textarea";
 import { useAuth } from "@/lib/auth";
-import { useSocket } from "../../app/components/socket-provider";
+import { useSocket } from "../../../components/socket-provider";
 import { SocketResponse } from "@/types/socket";
 
 /**

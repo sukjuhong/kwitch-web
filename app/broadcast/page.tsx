@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 
-import Chat from "@/components/channels/chat";
+import Chat from "@/app/channels/[broadcaster]/components/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

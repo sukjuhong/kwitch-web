@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useSocket } from "../../app/components/socket-provider";
+import { useSocket } from "../../../components/socket-provider";
 
 /**
  * @param broadcaster broadcaster's username

@@ -8,7 +8,7 @@ import {
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
 import type { Channel } from "@/types";
-import { useSocket } from "../../app/components/socket-provider";
+import { useSocket } from "../../components/socket-provider";
 
 export default function ChannelNav() {
   const socket = useSocket();
