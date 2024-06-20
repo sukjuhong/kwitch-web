@@ -26,7 +26,7 @@ export default function UserButton() {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <Avatar>
-          <AvatarImage src={user?.avatar} alt="@shadcn" />
+          <AvatarImage src={"TODO"} alt="@shadcn" />
           <AvatarFallback>You</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
