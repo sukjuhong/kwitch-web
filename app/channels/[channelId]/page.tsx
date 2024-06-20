@@ -8,12 +8,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "@/app/components/socket-provider";
 import { SocketResponse } from "@/types/socket";
+import { useParams } from "next/navigation";
 
-export default function ChannelPage({
-  params,
-}: {
-  params: { channelId: string };
-}) {
+export default function ChannelPage() {
+  const params = useParams<{ channelId: string}>()
   const { channelId } = params;
 
   const socket = useSocket();
