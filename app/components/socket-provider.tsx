@@ -1,8 +1,7 @@
 "use client";
 
 import { useAuth } from "@/lib/auth";
-import { ClientToServerEvents, ServerToClientEvents } from "@/types/socket";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
 
 const SocketContext = createContext<Socket | undefined>(undefined);
