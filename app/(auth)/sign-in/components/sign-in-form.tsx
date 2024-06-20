@@ -111,7 +111,9 @@ export default function SignInForm() {
         </form>
       </Form>
       <Button className="w-full" asChild>
-        <Link href="/sign-up">Don't have an account?&nbsp;<strong>Sign Up</strong></Link>
+        <Link href="/sign-up">
+          Don&apos;t have an account?&nbsp;<strong>Sign Up</strong>
+        </Link>
       </Button>
     </div>
   );
