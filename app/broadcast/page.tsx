@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 
-import Chat from "@/components/channels/chat";
+import Chat from "@/app/channels/[channelId]/components/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/lib/auth";
 import { SocketResponse } from "@/types/socket";
 import { useSocket } from "@/app/components/socket-provider";
+import assert from "assert";
 
 export default function Broadcast() {
   const { user } = useAuth();
@@ -49,7 +50,7 @@ export default function Broadcast() {
       }
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("p2p:ice", user.username, event.candidate);
+          socket.emit("p2p:ice", user.channelId, event.candidate);
         }
       };
 
@@ -59,7 +60,7 @@ export default function Broadcast() {
         .then(() => {
           socket.emit(
             "p2p:offer",
-            user.username,
+            user.channelId,
             peerConnection.localDescription
           );
         });
@@ -96,7 +97,7 @@ export default function Broadcast() {
         delete peerConnections[socketId];
       }
 
-      socket.emit("channels:delete", (res: SocketResponse) => {
+      socket.emit("broadcasts:end", user.channelId, (res: SocketResponse) => {
         if (res.success) {
           toast({
             title: "Broadcast ended",
@@ -111,7 +112,7 @@ export default function Broadcast() {
   function startBroadcast() {
     if (!title || onAir) return;
 
-    socket.emit("channels:create", title, (res: SocketResponse) => {
+    socket.emit("broadcasts:start", title, (res: SocketResponse) => {
       if (res.success) {
         setWarning("");
         setOnAir(true);
@@ -122,6 +123,8 @@ export default function Broadcast() {
   }
 
   async function getScreen() {
+    assert(user, "User is not defined");
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
     }
@@ -147,7 +150,7 @@ export default function Broadcast() {
         .then(() => {
           socket.emit(
             "p2p:offer",
-            user!.username,
+            user.channelId,
             peerConnection.localDescription
           );
         });
@@ -210,7 +213,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat broadcaster={user.username} />}
+      {onAir && <Chat channelId={user.channelId} />}
     </div>
   );
 }

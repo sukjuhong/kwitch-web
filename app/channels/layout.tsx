@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import ChannelNav from "@/components/channels/channel-nav";
+import ChannelNav from "@/app/channels/components/channel-nav";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import { useAuth } from "@/lib/auth";

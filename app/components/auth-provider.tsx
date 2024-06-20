@@ -19,6 +19,7 @@ export default function AuthProvider({
 
       if (res.ok) {
         const data = await res.json();
+        console.log("current user: ", data.user);
         setUser(data.user);
       }
 

@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { useSocket } from "../../app/components/socket-provider";
+import { useSocket } from "../../../components/socket-provider";
 
 /**
  * @param broadcaster broadcaster's username
  */
-export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
+export default function VideoPlayer({ channelId }: { channelId: string }) {
   const socket = useSocket();
 
   const peerConnectionRef = useRef<RTCPeerConnection>(
@@ -26,7 +26,7 @@ export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
 
       peerConnection.onicecandidate = (event) => {
         if (event.candidate) {
-          socket.emit("p2p:ice", broadcaster, event.candidate);
+          socket.emit("p2p:ice", socket.id, event.candidate);
         }
       };
 
@@ -37,14 +37,18 @@ export default function VideoPlayer({ broadcaster }: { broadcaster: string }) {
         .then(() => {
           socket.emit(
             "p2p:answer",
-            broadcaster,
+            channelId,
             peerConnection.localDescription
           );
         });
     });
 
     socket.on("p2p:ice", (socketId: string, candidate: RTCIceCandidate) => {
-      peerConnection.addIceCandidate(candidate);
+      try {
+        peerConnection.addIceCandidate(candidate);
+      } catch (err) {
+        console.error(err);
+      }
     });
 
     return () => {
