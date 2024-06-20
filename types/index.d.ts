@@ -1,16 +1,22 @@
 export interface User {
   id: number;
   username: string;
-  avatar?: string;
+  channelId: string;
 }
 
 export interface Channel {
-  id: number;
-  broadcasterId: number;
-  broadcaster: User;
-  title: string;
+  id: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
   viewers: number;
-  thumbnail?: string;
+}
+
+export interface Broadcast {
+  title: string;
+  roomName: string;
+  ownerId: number;
+  viewers: number;
 }
 
 export interface Message {

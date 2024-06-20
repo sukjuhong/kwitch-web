@@ -15,7 +15,7 @@ import { SocketResponse } from "@/types/socket";
 /**
  * @param broadcaster broadcaster's username
  */
-export default function Chat({ broadcaster }: { broadcaster: string }) {
+export default function Chat({ channelId }: { channelId: string }) {
   const { user } = useAuth();
   const socket = useSocket();
 
@@ -31,7 +31,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
   const [closeChat, setCloseChat] = useState(false);
 
   useEffect(() => {
-    socket.on("channels:joined", (username: string) => {
+    socket.on("broadcasts:joined", (username: string) => {
       setMessages((prev) => [
         ...prev,
         {
@@ -42,7 +42,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
       ]);
     });
 
-    socket.on("channels:left", (username: string) => {
+    socket.on("broadcasts:left", (username: string) => {
       setMessages((prev) => [
         ...prev,
         {
@@ -61,8 +61,8 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
     );
 
     return () => {
-      socket.off("channels:joined");
-      socket.off("channels:left");
+      socket.off("broadcasts:joined");
+      socket.off("broadcasts:left");
       socket.off("messages:sent");
     };
   }, []);
@@ -73,7 +73,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
     }
     socket.emit(
       "messages:send",
-      broadcaster,
+      channelId,
       currentMessage,
       (res: SocketResponse) => {
         setMessages((prev) => [
@@ -81,7 +81,7 @@ export default function Chat({ broadcaster }: { broadcaster: string }) {
           {
             username: user!.username,
             message: currentMessage,
-            isBroadcaster: broadcaster === user!.username,
+            isBroadcaster: channelId === user!.channelId,
           },
         ]);
       }

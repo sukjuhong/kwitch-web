@@ -7,29 +7,28 @@ import {
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
-import type { Channel } from "@/types";
+import type { Broadcast, Channel } from "@/types";
 import { useSocket } from "../../components/socket-provider";
 
 export default function ChannelNav() {
   const socket = useSocket();
 
   const [foldNav, setFoldNav] = useState(false);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
 
   useEffect(() => {
     const fetchChannels = async () => {
-      const res = await fetch("/api/channels");
+      const res = await fetch("/api/channels/live");
       if (res.ok) {
-        const data = await res.json();
-        setChannels(data);
+        const json = await res.json();
+        const broadcasts = json.data as Broadcast[];
+        console.log(broadcasts)
+        setBroadcasts(broadcasts);
       }
     };
     fetchChannels();
 
-    socket.on("channels:update", (channel: Channel) => {
-      // TODO: efficient update
-      fetchChannels();
-    });
+    socket.on("broadcasts:update", (channel: Channel) => fetchChannels());
   }, []);
 
   return (
@@ -49,18 +48,14 @@ export default function ChannelNav() {
           foldNav ? "" : "xl:flex"
         } justify-between items-center p-3`}
       >
-        <p className="font-bold">Current Channel List</p>
+        <p className="font-bold">Online channel list</p>
         <ArrowLeftCircleIcon
           className="w-6 h-6 cursor-pointer"
           onClick={() => setFoldNav(true)}
         />
       </div>
-      {channels.map((channel) => (
-        <ChannelNavItem
-          key={channel.broadcaster.username}
-          channel={channel}
-          foldNav={foldNav}
-        />
+      {broadcasts.map((broadcast) => (
+        <ChannelNavItem key={broadcast.ownerId} broadcast={broadcast} foldNav={foldNav} />
       ))}
     </div>
   );

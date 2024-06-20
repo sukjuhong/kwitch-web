@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import Chat from "@/app/channels/[broadcaster]/components/chat";
-import VideoPlayer from "@/app/channels/[broadcaster]/components/video-player";
+import Chat from "@/app/channels/[channelId]/components/chat";
+import VideoPlayer from "@/app/channels/[channelId]/components/video-player";
 import { useToast } from "@/components/ui/use-toast";
 import { SignalSlashIcon } from "@heroicons/react/24/solid";
 import { useSocket } from "@/app/components/socket-provider";
@@ -12,10 +12,9 @@ import { SocketResponse } from "@/types/socket";
 export default function ChannelPage({
   params,
 }: {
-  params: { broadcaster: string };
+  params: { channelId: string };
 }) {
-  let { broadcaster } = params;
-  broadcaster = decodeURI(broadcaster);
+  const { channelId } = params;
 
   const socket = useSocket();
   const { toast } = useToast();
@@ -25,26 +24,23 @@ export default function ChannelPage({
   // TODO: handle when broadcaster turn on the stream after broadcaster turn off the stream
 
   useEffect(() => {
-    socket.emit("channels:join", broadcaster, (res: SocketResponse) => {
+    socket.emit("broadcasts:join", channelId, (res: SocketResponse) => {
       if (res.success) {
         setOnAir(true);
       }
     });
-  }, []);
 
-  useEffect(() => {
-    if (!onAir) return;
-
-    socket.on("channels:destroy", () => {
+    socket.on("broadcasts:destroy", () => {
       toast({
         title: "The broadcaster closed the channel.",
         variant: "destructive",
       });
       setOnAir(false);
     });
-
+  
     return () => {
-      socket.emit("channels:leave", broadcaster, (res: SocketResponse) => {
+      if (!onAir) return;
+      socket.emit("broadcasts:leave", channelId, (res: SocketResponse) => {
         if (!res.success) {
           toast({
             title: "Failed to leave the channel.",
@@ -53,17 +49,17 @@ export default function ChannelPage({
           });
         }
       });
-
-      socket.off("channels:destroy");
+  
+      socket.off("broadcasts:destroy");
     };
-  }, [onAir]);
+  }, []);
 
   return (
     <div className="relative flex flex-1 overflow-hidden">
       {onAir ? (
         <>
-          <VideoPlayer broadcaster={broadcaster} />
-          <Chat broadcaster={broadcaster} />
+          <VideoPlayer channelId={channelId} />
+          <Chat channelId={channelId} />
         </>
       ) : (
         <div className="flex-1 flex flex-col justify-center items-center">
