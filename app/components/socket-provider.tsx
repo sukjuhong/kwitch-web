@@ -3,13 +3,17 @@
 import { useAuth } from "@/lib/auth";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
+import { SOCKET_URL } from "@/config/env";
 
 const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const socketRef = useRef<Socket>(
-    io({ path: "/socket.io", autoConnect: false })
+    io(SOCKET_URL, {
+      path: "/socket.io",
+      autoConnect: false,
+    })
   );
 
   useEffect(() => {

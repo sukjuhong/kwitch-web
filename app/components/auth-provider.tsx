@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
 import type { User } from "@/types";
 import { toast } from "../../components/ui/use-toast";
+import { rFetch } from "@/lib/return-fetch";
 
 export default function AuthProvider({
   children,
@@ -15,7 +16,7 @@ export default function AuthProvider({
 
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/users/me", { cache: "no-cache" });
+      const res = await rFetch("/api/users/me", { cache: "no-cache" });
 
       if (res.ok) {
         const data = await res.json();
