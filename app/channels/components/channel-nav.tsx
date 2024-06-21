@@ -9,6 +9,7 @@ import {
 import ChannelNavItem from "./channel-nav-item";
 import type { Broadcast, Channel } from "@/types";
 import { useSocket } from "../../components/socket-provider";
+import { rFetch } from "@/lib/return-fetch";
 
 export default function ChannelNav() {
   const socket = useSocket();
@@ -18,7 +19,7 @@ export default function ChannelNav() {
 
   useEffect(() => {
     const fetchChannels = async () => {
-      const res = await fetch("/api/channels/live");
+      const res = await rFetch("/api/channels/live");
       if (res.ok) {
         const json = await res.json();
         const broadcasts = json.data as Broadcast[];
