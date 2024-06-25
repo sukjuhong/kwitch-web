@@ -9,7 +9,7 @@ import {
 import ChannelNavItem from "./channel-nav-item";
 import type { Broadcast, Channel } from "@/types";
 import { useSocket } from "../../components/socket-provider";
-import { rFetch } from "@/lib/return-fetch";
+import { api } from "@/lib/axios";
 
 export default function ChannelNav() {
   const socket = useSocket();
@@ -19,12 +19,14 @@ export default function ChannelNav() {
 
   useEffect(() => {
     const fetchChannels = async () => {
-      const res = await rFetch("/api/channels/live");
-      if (res.ok) {
-        const json = await res.json();
-        const broadcasts = json.data as Broadcast[];
-        console.log(broadcasts)
+      try {
+        const res = await api.get("/api/channels/live");
+
+        const { data: broadcasts } = await res.data;
+        console.log("current broadcasts: ", broadcasts);
         setBroadcasts(broadcasts);
+      } catch (err) {
+        console.error(err);
       }
     };
     fetchChannels();
@@ -56,7 +58,11 @@ export default function ChannelNav() {
         />
       </div>
       {broadcasts.map((broadcast) => (
-        <ChannelNavItem key={broadcast.ownerId} broadcast={broadcast} foldNav={foldNav} />
+        <ChannelNavItem
+          key={broadcast.ownerId}
+          broadcast={broadcast}
+          foldNav={foldNav}
+        />
       ))}
     </div>
   );

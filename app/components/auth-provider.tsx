@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
 import type { User } from "@/types";
 import { toast } from "../../components/ui/use-toast";
-import { rFetch } from "@/lib/return-fetch";
+import { api } from "@/lib/axios";
+import axios from "axios";
 
 export default function AuthProvider({
   children,
@@ -16,55 +17,49 @@ export default function AuthProvider({
 
   useEffect(() => {
     async function fetchUser() {
-      const res = await rFetch("/api/users/me", { cache: "no-cache" });
-
-      if (res.ok) {
-        const data = await res.json();
-        console.log("current user: ", data.user);
-        setUser(data.user);
+      try {
+        const res = await api.get("/api/users/me");
+  
+        const { user } = await res.data;
+        console.log("current user: ", user);
+        setUser(user);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     }
 
     fetchUser();
   }, []);
 
   async function signIn(signInParams: SignInParams) {
-    const res = await fetch("/api/auth/sign-in", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(signInParams),
-      cache: "no-cache",
-    });
+    try {
+      const res = await api.post("/api/auth/sign-in", signInParams);
 
-    if (res.ok) {
-      const data = await res.json();
-      setUser(data.user);
-    }
+      const { user } = await res.data;
+      setUser(user);
+    } catch (err) {
+      console.error(err);
+      return false;
+    } 
 
-    return res.ok;
+    return true;
   }
 
   async function signUp(signUpParams: SignUpParams) {
-    const res = await fetch("/api/auth/sign-up", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(signUpParams),
-      cache: "no-cache",
-    });
+    try { 
+      const res = await api.post("/api/auth/sign-up", signUpParams);
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
 
-    return res.ok;
+    return true;
   }
 
   function signOut() {
-    fetch("/api/auth/sign-out", {
-      method: "POST",
-    }).then(() => {
+    axios.post("/api/auth/sign-out").then(() => {
       setUser(null);
       toast({ title: "You are signed out." });
     });
