@@ -3,16 +3,18 @@
 import { useAuth } from "@/lib/auth";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
-import { SOCKET_URL } from "@/config/env";
+import { API_URL } from "@/config/env";
 
 const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const socketRef = useRef<Socket>(
-    io(SOCKET_URL, {
+    io(API_URL, {
       path: "/socket.io",
       autoConnect: false,
+      withCredentials: true,
+      transports: ["websocket"],
     })
   );
 
