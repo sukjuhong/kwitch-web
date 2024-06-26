@@ -9,9 +9,10 @@ const SocketContext = createContext<Socket | undefined>(undefined);
 
 const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
+
   const socketRef = useRef<Socket>(
     io(API_URL, {
-      path: "/socket.io",
+      path: "/socket.io/",
       autoConnect: false,
       withCredentials: true,
       transports: ["websocket"],

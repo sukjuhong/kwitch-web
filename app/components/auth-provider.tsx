@@ -18,8 +18,12 @@ export default function AuthProvider({
   useEffect(() => {
     async function fetchUser() {
       try {
-        const res = await api.get("/api/users/me");
-  
+        const res = await api.get("/api/users/me", {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
+
         const { user } = await res.data;
         console.log("current user: ", user);
         setUser(user);
@@ -35,21 +39,29 @@ export default function AuthProvider({
 
   async function signIn(signInParams: SignInParams) {
     try {
-      const res = await api.post("/api/auth/sign-in", signInParams);
+      const res = await api.post("/api/auth/sign-in", signInParams, {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
 
       const { user } = await res.data;
       setUser(user);
     } catch (err) {
       console.error(err);
       return false;
-    } 
+    }
 
     return true;
   }
 
   async function signUp(signUpParams: SignUpParams) {
-    try { 
-      const res = await api.post("/api/auth/sign-up", signUpParams);
+    try {
+      const res = await api.post("/api/auth/sign-up", signUpParams, {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
     } catch (err) {
       console.log(err);
       return false;
