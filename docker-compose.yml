@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    container_name: kwitch-web
+    hostname: web
+    ports:
+      - "8000:8000"
+    networks:
+      - caddy_proxy
+
+networks:
+  caddy_proxy:
+    external: true
