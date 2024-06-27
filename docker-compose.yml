@@ -4,10 +4,10 @@ services:
     container_name: kwitch-web
     hostname: web
     ports:
-      - "8000:8000"
+      - "3000:3000"
     networks:
-      - caddy_proxy
+      - proxy-network
 
 networks:
-  caddy_proxy:
+  proxy-network:
     external: true
