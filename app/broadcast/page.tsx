@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth";
 import { SocketResponse } from "@/types/socket";
 import { useSocket } from "@/app/components/socket-provider";
 import assert from "assert";
+import { GSP_NO_RETURNED_VALUE } from "next/dist/lib/constants";
 
 export default function Broadcast() {
   const { user } = useAuth();
@@ -36,7 +37,7 @@ export default function Broadcast() {
 
     const peerConnections = peerConnectionsRef.current;
 
-    socket.on("p2p:joined", (socketId: string) => {
+    socket.on("p2p:joined", async (socketId: string) => {
       const peerConnection = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
@@ -54,32 +55,50 @@ export default function Broadcast() {
         }
       };
 
-      peerConnection
-        .createOffer()
-        .then((offer) => peerConnection.setLocalDescription(offer))
-        .then(() => {
-          socket.emit(
-            "p2p:offer",
-            user.channelId,
-            peerConnection.localDescription
-          );
-        });
+      try {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit("p2p:offer", user.channelId, peerConnection.localDescription);
+      } catch (err) {
+        console.error(err);
+      }
     });
 
     socket.on("p2p:left", (socketId: string) => {
-      peerConnections[socketId].close();
-      delete peerConnections[socketId];
+      if (peerConnections[socketId]) {
+        peerConnections[socketId].close();
+        delete peerConnections[socketId];
+      }
     });
 
     socket.on(
       "p2p:answer",
-      (socketId: string, answer: RTCSessionDescription) => {
-        peerConnections[socketId].setRemoteDescription(answer);
+      async (socketId: string, answer: RTCSessionDescription) => {
+        const peerConnection = peerConnections[socketId];
+        if (!peerConnection) return;
+
+        // check if the signaling state is stable
+        if (peerConnection.signalingState === "stable") {
+          return;
+        }
+
+        try {
+          await peerConnection.setRemoteDescription(answer);
+        } catch (err) {
+          console.error(err);
+        }
       }
     );
 
-    socket.on("p2p:ice", (socketId: string, candidate: RTCIceCandidate) => {
-      peerConnections[socketId].addIceCandidate(candidate);
+    socket.on("p2p:ice", async (socketId: string, candidate: RTCIceCandidate) => {
+      const peerConnection = peerConnections[socketId];
+      if (!peerConnection) return;
+
+      try {
+        await peerConnection.addIceCandidate(candidate);
+      } catch (err) {
+        console.error(err);
+      }
     });
 
     return () => {
