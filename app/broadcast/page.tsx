@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Chat from "@/app/channels/[channelId]/components/chat";
 import { Button } from "@/components/ui/button";
@@ -97,7 +97,7 @@ export default function Broadcast() {
         delete peerConnections[socketId];
       }
 
-      socket.emit("broadcasts:end", user.channelId, (res: SocketResponse) => {
+      socket.emit("broadcasts:end", (res: SocketResponse) => {
         if (res.success) {
           toast({
             title: "Broadcast ended",

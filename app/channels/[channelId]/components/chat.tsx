@@ -74,6 +74,7 @@ export default function Chat({ channelId }: { channelId: string }) {
     socket.emit(
       "messages:send",
       channelId,
+      user!.channelId,
       currentMessage,
       (res: SocketResponse) => {
         setMessages((prev) => [
