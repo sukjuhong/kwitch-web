@@ -13,9 +13,15 @@ export interface Channel {
 }
 
 export interface Broadcast {
+  id: string;
+  channelId: string;
+  status: "LIVE" | "ENDED";
   title: string;
-  roomName: string;
-  ownerId: number;
+}
+
+export type LiveChannel = {
+  channel: Channel;
+  broadcast: Broadcast;
   viewers: number;
 }
 

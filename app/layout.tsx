@@ -21,20 +21,18 @@ export default function RootLayout({
     <html lang="ko" suppressHydrationWarning>
       <body className="flex flex-col min-h-screen overflow-hidden">
         <AuthProvider>
-          <SocketProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <Toaster />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster />
 
-              <Header />
-              {children}
-              <Footer />
-            </ThemeProvider>
-          </SocketProvider>
+            <Header />
+            {children}
+            <Footer />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

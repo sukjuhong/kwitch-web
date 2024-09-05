@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
+
 import ChannelNav from "@/app/channels/components/channel-nav";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import { useAuth } from "@/lib/auth";
 
-export default function ChannelLayout({
+export default function ChannelsLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,12 +15,17 @@ export default function ChannelLayout({
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/sign-in?redirect=/channels");
+    }
+  }, [isLoading, user, router]);
+
   if (isLoading) {
     return <Loading />;
   }
 
   if (!user) {
-    router.replace("/sign-in?redirect=/channels");
     return null;
   }
 

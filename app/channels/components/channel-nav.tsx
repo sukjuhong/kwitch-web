@@ -1,37 +1,31 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   ArrowLeftCircleIcon,
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
-import type { Broadcast, Channel } from "@/types";
-import { useSocket } from "../../components/socket-provider";
+import type { Broadcast, Channel, LiveChannel } from "@/types";
 import { api } from "@/lib/axios";
 
 export default function ChannelNav() {
-  const socket = useSocket();
-
   const [foldNav, setFoldNav] = useState(false);
-  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [liveChannels, setLiveChannels] = useState<LiveChannel[]>([]);
 
   useEffect(() => {
     const fetchChannels = async () => {
-      try {
-        const res = await api.get("/api/channels/live");
+      const res = await api.get("/api/channels/live");
+      const { data: liveChannelData } = await res.data;
 
-        const { data: broadcasts } = await res.data;
-        console.log("current broadcasts: ", broadcasts);
-        setBroadcasts(broadcasts);
-      } catch (err) {
-        console.error(err);
-      }
+      console.log("liveChannelData: ", liveChannelData);
+      setLiveChannels(liveChannelData);
+
+      setTimeout(() => fetchChannels(), 10000);
     };
-    fetchChannels();
 
-    socket.on("broadcasts:update", (channel: Channel) => fetchChannels());
+    fetchChannels();
   }, []);
 
   return (
@@ -57,10 +51,10 @@ export default function ChannelNav() {
           onClick={() => setFoldNav(true)}
         />
       </div>
-      {broadcasts.map((broadcast) => (
+      {liveChannels.map((liveChannel) => (
         <ChannelNavItem
-          key={broadcast.ownerId}
-          broadcast={broadcast}
+          key={liveChannel.channel.id}
+          liveChannel={liveChannel}
           foldNav={foldNav}
         />
       ))}

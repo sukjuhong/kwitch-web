@@ -5,7 +5,6 @@ import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
 import type { User } from "@/types";
 import { toast } from "../../components/ui/use-toast";
 import { api } from "@/lib/axios";
-import axios from "axios";
 
 export default function AuthProvider({
   children,
@@ -57,7 +56,7 @@ export default function AuthProvider({
 
   async function signUp(signUpParams: SignUpParams) {
     try {
-      const res = await api.post("/api/auth/sign-up", signUpParams, {
+      await api.post("/api/auth/sign-up", signUpParams, {
         headers: {
           "Cache-Control": "no-cache",
         },
@@ -71,7 +70,7 @@ export default function AuthProvider({
   }
 
   function signOut() {
-    axios.post("/api/auth/sign-out").then(() => {
+    api.post("/api/auth/sign-out").then(() => {
       setUser(null);
       toast({ title: "You are signed out." });
     });
