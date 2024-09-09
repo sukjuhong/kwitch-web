@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
 import type { User } from "@/types";
-import { toast } from "../../components/ui/use-toast";
+import { toast } from "./ui/use-toast";
 import { api } from "@/lib/axios";
 
 export default function AuthProvider({

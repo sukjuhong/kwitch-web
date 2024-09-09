@@ -2,7 +2,7 @@
 
 import { EyeIcon } from "@heroicons/react/20/solid";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import type { Broadcast, Channel, LiveChannel } from "@/types";
+import type { LiveChannel } from "@/types";
 import { useRouter } from "next/navigation";
 
 export default function ChannelNavItem({
@@ -28,7 +28,9 @@ export default function ChannelNavItem({
           <div className="flex-1 hidden xl:block pl-3">
             <div className="flex justify-between gap-x-5">
               <div className="flex flex-col items-start">
-                <p className="font-bold text-md">{liveChannel.broadcast.title}</p>
+                <p className="font-bold text-md">
+                  {liveChannel.broadcast.title}
+                </p>
                 <span className="text-sm text-gray-500">
                   {liveChannel.channel.name}
                 </span>

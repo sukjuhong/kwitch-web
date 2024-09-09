@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
 import { useAuth } from "@/lib/auth";
-import { SocketProvider } from "../components/socket-provider";
+import { SocketProvider } from "../../components/socket-provider";
 
 export default function BroadcastLayout({
   children,
