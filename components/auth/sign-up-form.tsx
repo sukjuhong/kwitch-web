@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -14,12 +14,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../../../components/ui/form";
+} from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { Loader2 } from "lucide-react";
-import { useToast } from "../../../../components/ui/use-toast";
-import { useAuth } from "@/lib/auth";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "../auth-provider";
 
 export const signUpSchema = z
   .object({

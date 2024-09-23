@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "./auth-provider";
 
 export default function UserButton() {
   const { user, signOut } = useAuth();

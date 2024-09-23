@@ -7,8 +7,8 @@ import { ModeToggle } from "./mode-toggle";
 import CreateChannelButton from "./create-channel-button";
 import SignInButton from "./sign-in-button";
 import UserButton from "./user-button";
-import { useAuth } from "@/lib/auth";
 import { Skeleton } from "./ui/skeleton";
+import { useAuth } from "./auth-provider";
 
 export default function Header() {
   const { user, isLoading } = useAuth();

@@ -19,9 +19,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/lib/auth";
 import { useState } from "react";
-import { Separator } from "@/components/ui/separator";
+import { useAuth } from "../auth-provider";
 
 export const signInSchema = z.object({
   username: z.string().min(3).max(20),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
@@ -9,25 +9,47 @@ import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import { SignalIcon } from "@heroicons/react/20/solid";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/lib/auth";
-import { useSocket } from "@/components/socket-provider";
+import { videoOptions, useSocket } from "@/components/socket-provider";
+import * as mediasoup from "mediasoup-client";
+import { SocketResponse } from "@/types/socket";
+import { useAuth } from "@/components/auth-provider";
 import assert from "assert";
 
 export default function Broadcast() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const {
-    socket,
-    getDevice,
-    createProducerTransport,
-    connectProducerTransport,
-  } = useSocket();
+  const { socket } = useSocket();
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioParams = useRef<mediasoup.types.ProducerOptions | null>(null);
+  const videoParams = useRef<mediasoup.types.ProducerOptions | null>(null);
+  const device = useRef<mediasoup.types.Device | null>(null);
+  const rtpCapabilities = useRef<mediasoup.types.RtpCapabilities | null>(null);
+  const sendTransport = useRef<mediasoup.types.Transport | null>(null);
+  const audioProducer = useRef<mediasoup.types.Producer | null>(null);
+  const videoProducer = useRef<mediasoup.types.Producer | null>(null);
 
   const [title, setTitle] = useState("");
   const [warning, setWarning] = useState("");
   const [onAir, setOnAir] = useState(false);
+
+  const startBroadcast = () => {
+    if (!title || onAir) return;
+
+    socket.emit("broadcasts:start", title, async (res: SocketResponse) => {
+      if (res.success === false) {
+        setWarning(res.message);
+        return;
+      }
+
+      rtpCapabilities.current = res.content.rtpCapabilities;
+      console.log("RTP Capabilities: ", rtpCapabilities.current);
+      await _createDevice();
+
+      setWarning("");
+      setOnAir(true);
+    });
+  };
 
   const getLocalStream = async () => {
     try {
@@ -38,105 +60,132 @@ export default function Broadcast() {
           height: 720,
         },
       });
-
-      assert(videoRef.current, "Video element is not defined");
-      videoRef.current.srcObject = stream;
+      await _onStreamSuccess(stream);
     } catch (err: any) {
       console.error(err);
     }
   };
 
-  useEffect(() => {
-    getDevice();
-  }, []);
+  const _onStreamSuccess = async (stream: MediaStream) => {
+    assert(videoRef.current, "Video ref is not defined");
+    videoRef.current.srcObject = stream;
 
-  // useEffect(() => {
-  //   if (!onAir || !user) return;
+    const audioTrack = stream.getAudioTracks()[0];
+    const videoTrack = stream.getVideoTracks()[0];
 
-  //   const peerConnections = conn.current;
+    if (audioTrack) {
+      audioParams.current = { track: stream.getAudioTracks()[0] };
+    }
+    if (videoTrack) {
+      videoParams.current = {
+        track: stream.getVideoTracks()[0],
+        ...videoOptions,
+      };
+    }
 
-  //   return () => {
-  //     socket.off("p2p:joined");
-  //     socket.off("p2p:left");
-  //     socket.off("p2p:offer");
-  //     socket.off("p2p:answer");
-  //     socket.off("p2p:ice");
+    await _createProducer();
+  };
 
-  //     if (streamRef.current) {
-  //       streamRef.current.getTracks().forEach((track) => track.stop());
-  //     }
-  //     for (const socketId in peerConnections) {
-  //       peerConnections[socketId].close();
-  //       delete peerConnections[socketId];
-  //     }
+  const _createDevice = async () => {
+    device.current = new mediasoup.Device();
+    assert(rtpCapabilities.current, "RTP Capabilities is not defined");
+    await device.current.load({
+      routerRtpCapabilities: rtpCapabilities.current,
+    });
+    _createSendTransport();
+  };
 
-  //     socket.emit("broadcasts:end", (res: SocketResponse) => {
-  //       if (res.success) {
-  //         toast({
-  //           title: "Broadcast ended",
-  //           description: "Your broadcast has been ended automatically.",
-  //         });
-  //         return;
-  //       }
-  //     });
-  //   };
-  // }, [user, onAir]);
+  const _createSendTransport = () => {
+    assert(user, "User is not defined");
 
-  // function startBroadcast() {
-  //   if (!title || onAir) return;
+    socket.emit(
+      "sfu:create-transport",
+      { channelId: user.channel.id, isSender: true },
+      async (res: SocketResponse) => {
+        if (res.success === false) {
+          console.error(res.message);
+          return;
+        }
 
-  //   conn.current = new RTCPeerConnection({
-  //     iceServers: [
-  //       {
-  //         urls: "stun:stun.l.google.com:19302",
-  //       },
-  //     ],
-  //   });
+        const transportOptions =
+          res.content as mediasoup.types.TransportOptions;
+        console.log("Transport Options: ", transportOptions);
 
-  //   socket.emit("broadcasts:start", title, (res: SocketResponse) => {
-  //     if (res.success) {
-  //       setWarning("");
-  //       setOnAir(true);
-  //       return;
-  //     }
-  //     setWarning(res.message);
-  //   });
-  // }
+        assert(device.current, "Device is not defined");
+        sendTransport.current =
+          device.current.createSendTransport(transportOptions);
+        console.log("producer transport ID: ", sendTransport.current.id);
 
-  // async function getScreen() {
-  //   assert(user, "User is not defined");
+        sendTransport.current.on(
+          "connect",
+          async ({ dtlsParameters }, callback, errback) => {
+            try {
+              socket.emit("sfu:send-transport-connect", {
+                channelId: user.channel.id,
+                dtlsParameters,
+              });
+              callback();
+            } catch (err: any) {
+              errback(err);
+            }
+          }
+        );
 
-  //   if (streamRef.current) {
-  //     streamRef.current.getTracks().forEach((track) => track.stop());
-  //   }
+        sendTransport.current.on(
+          "produce",
+          async (parameters, callback, errback) => {
+            try {
+              socket.emit(
+                "sfu:transport-produce",
+                {
+                  channelId: user.channel.id,
+                  producerOptions: {
+                    kind: parameters.kind,
+                    rtpParameters: parameters.rtpParameters,
+                  },
+                },
+                (res: SocketResponse) => {
+                  if (res.success === false) {
+                    throw new Error(res.message);
+                  }
+                  callback({ id: res.content.id });
+                }
+              );
+            } catch (err: any) {
+              errback(err);
+            }
+          }
+        );
+      }
+    );
+  };
 
-  //   const stream = await navigator.mediaDevices.getDisplayMedia({
-  //     video: true,
-  //     audio: true,
-  //   });
+  const _createProducer = async () => {
+    assert(sendTransport.current, "Producer Transport is not defined");
 
-  //   videoRef.current!.srcObject = stream;
-  //   streamRef.current = stream;
-
-  //   for (const socketId in peerConnectionsRef.current) {
-  //     const peerConnection = peerConnectionsRef.current[socketId];
-
-  //     stream.getTracks().forEach((track) => {
-  //       peerConnection.addTrack(track, stream);
-  //     });
-
-  //     peerConnection
-  //       .createOffer()
-  //       .then((offer) => peerConnection.setLocalDescription(offer))
-  //       .then(() => {
-  //         socket.emit(
-  //           "p2p:offer",
-  //           user.channelId,
-  //           peerConnection.localDescription
-  //         );
-  //       });
-  //   }
-  // }
+    if (audioParams.current) {
+      audioProducer.current = await sendTransport.current.produce(
+        audioParams.current
+      );
+      audioProducer.current.on("transportclose", () => {
+        console.log("Audio Producer Transport Closed");
+      });
+      audioProducer.current.on("trackended", () => {
+        console.log("Audio Producer Track Ended");
+      });
+    }
+    if (videoParams.current) {
+      videoProducer.current = await sendTransport.current.produce(
+        videoParams.current
+      );
+      videoProducer.current.on("transportclose", () => {
+        console.log("Video Producer Transport Closed");
+      });
+      videoProducer.current.on("trackended", () => {
+        console.log("Video Producer Track Ended");
+      });
+    }
+  };
 
   if (!user) {
     return null;
@@ -157,7 +206,7 @@ export default function Broadcast() {
           />
         </div>
         <div className="flex items-center gap-x-3 mb-5">
-          <Button disabled={onAir} className="mr-3">
+          <Button disabled={onAir} onClick={startBroadcast} className="mr-3">
             Start
           </Button>
           {onAir && (
@@ -173,7 +222,7 @@ export default function Broadcast() {
             <span>{warning}</span>
           </div>
         )}
-        {!onAir && (
+        {onAir && (
           <>
             <div className="w-1/2 bg-yellow-600 text-white opacity-80 rounded-xl p-5 mb-5">
               <AlertTriangle className="w-6 h-6 inline-block mr-3"></AlertTriangle>
@@ -184,21 +233,6 @@ export default function Broadcast() {
             </div>
             <Button onClick={getLocalStream} className="mb-5">
               Screen
-            </Button>
-            <Button onClick={createProducerTransport} className="mb-5">
-              Create Consumer Transport
-            </Button>
-            <Button
-              onClick={() => {
-                if (videoRef.current) {
-                  connectProducerTransport(
-                    videoRef.current.srcObject as MediaStream
-                  );
-                }
-              }}
-              className="mb-5"
-            >
-              Connect Consumer Transport
             </Button>
             <div className="flex items-center gap-x-4 mb-5">
               <p className="text-sm font-medium">Video</p>
@@ -213,7 +247,7 @@ export default function Broadcast() {
           </>
         )}
       </div>
-      {onAir && <Chat channelId={user!.channelId} />}
+      {onAir && <Chat channelId={user.channel.id} />}
     </div>
   );
 }

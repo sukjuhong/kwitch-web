@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import ChannelNav from "@/components/channels/channel-nav";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/loading";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/components/auth-provider";
 
 export default function ChannelsLayout({
   children,
