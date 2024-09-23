@@ -1,7 +1,7 @@
 export interface User {
   id: number;
   username: string;
-  channelId: string;
+  channel: Channel;
 }
 
 export interface Channel {
@@ -9,20 +9,11 @@ export interface Channel {
   name: string;
   description?: string;
   imageUrl?: string;
-  viewers: number;
 }
 
 export interface Broadcast {
-  id: string;
-  channelId: string;
-  status: "LIVE" | "ENDED";
   title: string;
-}
-
-export type LiveChannel = {
   channel: Channel;
-  broadcast: Broadcast;
-  viewers: number;
 }
 
 export interface Message {

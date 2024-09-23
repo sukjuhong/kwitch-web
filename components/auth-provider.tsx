@@ -1,12 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { AuthContext, SignInParams, SignUpParams } from "@/lib/auth";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { User } from "@/types";
-import { toast } from "../../components/ui/use-toast";
+import { toast } from "./ui/use-toast";
 import { api } from "@/lib/axios";
 
-export default function AuthProvider({
+
+export interface SignInParams {
+  username: string;
+  password: string;
+}
+
+export interface SignUpParams {
+  username: string;
+  password: string;
+}
+
+interface AuthContextValue {
+  user: User | null;
+  isLoading: boolean;
+  signIn: (signInParams: SignInParams) => Promise<boolean>;
+  signUp: (signUpParams: SignUpParams) => Promise<boolean>;
+  signOut: () => void;
+}
+
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
+);
+
+export function AuthProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -23,7 +45,7 @@ export default function AuthProvider({
           },
         });
 
-        const { user } = await res.data;
+        const { user } = await res.data.content;
         console.log("current user: ", user);
         setUser(user);
       } catch (err) {
@@ -44,7 +66,7 @@ export default function AuthProvider({
         },
       });
 
-      const { user } = await res.data;
+      const { user } = await res.data.content;
       setUser(user);
     } catch (err) {
       console.error(err);
@@ -81,4 +103,12 @@ export default function AuthProvider({
       {children}
     </AuthContext.Provider>
   );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useSessionContext must be used within a SessionProvider");
+  }
+  return context;
 }

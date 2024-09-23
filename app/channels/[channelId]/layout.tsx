@@ -1,4 +1,4 @@
-import { SocketProvider } from "@/app/components/socket-provider";
+import { SocketProvider } from "@/components/socket-provider";
 
 export default function ChannelLayout({ children }: { children: React.ReactNode }) {
   return (

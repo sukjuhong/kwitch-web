@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../../components/ui/dropdown-menu";
-import { useAuth } from "@/lib/auth";
+} from "./ui/dropdown-menu";
+import { useAuth } from "./auth-provider";
 
 export default function UserButton() {
   const { user, signOut } = useAuth();

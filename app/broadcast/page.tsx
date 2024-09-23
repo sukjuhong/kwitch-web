@@ -1,179 +1,194 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
-import Chat from "@/app/channels/[channelId]/components/chat";
+import Chat from "@/components/channels/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle } from "lucide-react";
 import { SignalIcon } from "@heroicons/react/20/solid";
 import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/lib/auth";
+import { videoOptions, useSocket } from "@/components/socket-provider";
+import * as mediasoup from "mediasoup-client";
 import { SocketResponse } from "@/types/socket";
-import { useSocket } from "@/app/components/socket-provider";
+import { useAuth } from "@/components/auth-provider";
 import assert from "assert";
-import { GSP_NO_RETURNED_VALUE } from "next/dist/lib/constants";
 
 export default function Broadcast() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const socket = useSocket();
+  const { socket } = useSocket();
 
-  if (!user) {
-    throw new Error("User is not defined");
-  }
-
-  const peerConnectionsRef = useRef<Record<string, RTCPeerConnection>>({});
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
+  const audioParams = useRef<mediasoup.types.ProducerOptions | null>(null);
+  const videoParams = useRef<mediasoup.types.ProducerOptions | null>(null);
+  const device = useRef<mediasoup.types.Device | null>(null);
+  const rtpCapabilities = useRef<mediasoup.types.RtpCapabilities | null>(null);
+  const sendTransport = useRef<mediasoup.types.Transport | null>(null);
+  const audioProducer = useRef<mediasoup.types.Producer | null>(null);
+  const videoProducer = useRef<mediasoup.types.Producer | null>(null);
 
   const [title, setTitle] = useState("");
   const [warning, setWarning] = useState("");
   const [onAir, setOnAir] = useState(false);
 
-  useEffect(() => {
-    if (!onAir) return;
-
-    const peerConnections = peerConnectionsRef.current;
-
-    socket.on("p2p:joined", async (socketId: string) => {
-      const peerConnection = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-      });
-      peerConnections[socketId] = peerConnection;
-
-      if (streamRef.current) {
-        const stream = streamRef.current;
-        stream.getTracks().forEach((track) => {
-          peerConnection.addTrack(track, stream);
-        });
-      }
-      peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("p2p:ice", user.channelId, event.candidate);
-        }
-      };
-
-      try {
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        socket.emit("p2p:offer", user.channelId, peerConnection.localDescription);
-      } catch (err) {
-        console.error(err);
-      }
-    });
-
-    socket.on("p2p:left", (socketId: string) => {
-      if (peerConnections[socketId]) {
-        peerConnections[socketId].close();
-        delete peerConnections[socketId];
-      }
-    });
-
-    socket.on(
-      "p2p:answer",
-      async (socketId: string, answer: RTCSessionDescription) => {
-        const peerConnection = peerConnections[socketId];
-        if (!peerConnection) return;
-
-        // check if the signaling state is stable
-        if (peerConnection.signalingState === "stable") {
-          return;
-        }
-
-        try {
-          await peerConnection.setRemoteDescription(answer);
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    );
-
-    socket.on("p2p:ice", async (socketId: string, candidate: RTCIceCandidate) => {
-      const peerConnection = peerConnections[socketId];
-      if (!peerConnection) return;
-
-      try {
-        await peerConnection.addIceCandidate(candidate);
-      } catch (err) {
-        console.error(err);
-      }
-    });
-
-    return () => {
-      socket.off("p2p:joined");
-      socket.off("p2p:left");
-      socket.off("p2p:offer");
-      socket.off("p2p:answer");
-      socket.off("p2p:ice");
-
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      for (const socketId in peerConnections) {
-        peerConnections[socketId].close();
-        delete peerConnections[socketId];
-      }
-
-      socket.emit("broadcasts:end", (res: SocketResponse) => {
-        if (res.success) {
-          toast({
-            title: "Broadcast ended",
-            description: "Your broadcast has been ended automatically.",
-          });
-          return;
-        }
-      });
-    };
-  }, [onAir]);
-
-  function startBroadcast() {
+  const startBroadcast = () => {
     if (!title || onAir) return;
 
-    socket.emit("broadcasts:start", title, (res: SocketResponse) => {
-      if (res.success) {
-        setWarning("");
-        setOnAir(true);
+    socket.emit("broadcasts:start", title, async (res: SocketResponse) => {
+      if (res.success === false) {
+        setWarning(res.message);
         return;
       }
-      setWarning(res.message);
-    });
-  }
 
-  async function getScreen() {
+      rtpCapabilities.current = res.content.rtpCapabilities;
+      console.log("RTP Capabilities: ", rtpCapabilities.current);
+      await _createDevice();
+
+      setWarning("");
+      setOnAir(true);
+    });
+  };
+
+  const getLocalStream = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        audio: true,
+        video: {
+          width: 1280,
+          height: 720,
+        },
+      });
+      await _onStreamSuccess(stream);
+    } catch (err: any) {
+      console.error(err);
+    }
+  };
+
+  const _onStreamSuccess = async (stream: MediaStream) => {
+    assert(videoRef.current, "Video ref is not defined");
+    videoRef.current.srcObject = stream;
+
+    const audioTrack = stream.getAudioTracks()[0];
+    const videoTrack = stream.getVideoTracks()[0];
+
+    if (audioTrack) {
+      audioParams.current = { track: stream.getAudioTracks()[0] };
+    }
+    if (videoTrack) {
+      videoParams.current = {
+        track: stream.getVideoTracks()[0],
+        ...videoOptions,
+      };
+    }
+
+    await _createProducer();
+  };
+
+  const _createDevice = async () => {
+    device.current = new mediasoup.Device();
+    assert(rtpCapabilities.current, "RTP Capabilities is not defined");
+    await device.current.load({
+      routerRtpCapabilities: rtpCapabilities.current,
+    });
+    _createSendTransport();
+  };
+
+  const _createSendTransport = () => {
     assert(user, "User is not defined");
 
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-    }
+    socket.emit(
+      "sfu:create-transport",
+      { channelId: user.channel.id, isSender: true },
+      async (res: SocketResponse) => {
+        if (res.success === false) {
+          console.error(res.message);
+          return;
+        }
 
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: true,
-    });
+        const transportOptions =
+          res.content as mediasoup.types.TransportOptions;
+        console.log("Transport Options: ", transportOptions);
 
-    videoRef.current!.srcObject = stream;
-    streamRef.current = stream;
+        assert(device.current, "Device is not defined");
+        sendTransport.current =
+          device.current.createSendTransport(transportOptions);
+        console.log("producer transport ID: ", sendTransport.current.id);
 
-    for (const socketId in peerConnectionsRef.current) {
-      const peerConnection = peerConnectionsRef.current[socketId];
+        sendTransport.current.on(
+          "connect",
+          async ({ dtlsParameters }, callback, errback) => {
+            try {
+              socket.emit("sfu:send-transport-connect", {
+                channelId: user.channel.id,
+                dtlsParameters,
+              });
+              callback();
+            } catch (err: any) {
+              errback(err);
+            }
+          }
+        );
 
-      stream.getTracks().forEach((track) => {
-        peerConnection.addTrack(track, stream);
+        sendTransport.current.on(
+          "produce",
+          async (parameters, callback, errback) => {
+            try {
+              socket.emit(
+                "sfu:transport-produce",
+                {
+                  channelId: user.channel.id,
+                  producerOptions: {
+                    kind: parameters.kind,
+                    rtpParameters: parameters.rtpParameters,
+                  },
+                },
+                (res: SocketResponse) => {
+                  if (res.success === false) {
+                    throw new Error(res.message);
+                  }
+                  callback({ id: res.content.id });
+                }
+              );
+            } catch (err: any) {
+              errback(err);
+            }
+          }
+        );
+      }
+    );
+  };
+
+  const _createProducer = async () => {
+    assert(sendTransport.current, "Producer Transport is not defined");
+
+    if (audioParams.current) {
+      audioProducer.current = await sendTransport.current.produce(
+        audioParams.current
+      );
+      audioProducer.current.on("transportclose", () => {
+        console.log("Audio Producer Transport Closed");
       });
-
-      peerConnection
-        .createOffer()
-        .then((offer) => peerConnection.setLocalDescription(offer))
-        .then(() => {
-          socket.emit(
-            "p2p:offer",
-            user.channelId,
-            peerConnection.localDescription
-          );
-        });
+      audioProducer.current.on("trackended", () => {
+        console.log("Audio Producer Track Ended");
+      });
     }
+    if (videoParams.current) {
+      videoProducer.current = await sendTransport.current.produce(
+        videoParams.current
+      );
+      videoProducer.current.on("transportclose", () => {
+        console.log("Video Producer Transport Closed");
+      });
+      videoProducer.current.on("trackended", () => {
+        console.log("Video Producer Track Ended");
+      });
+    }
+  };
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -191,7 +206,7 @@ export default function Broadcast() {
           />
         </div>
         <div className="flex items-center gap-x-3 mb-5">
-          <Button onClick={startBroadcast} disabled={onAir} className="mr-3">
+          <Button disabled={onAir} onClick={startBroadcast} className="mr-3">
             Start
           </Button>
           {onAir && (
@@ -216,7 +231,7 @@ export default function Broadcast() {
                 off.
               </span>
             </div>
-            <Button onClick={getScreen} className="mb-5">
+            <Button onClick={getLocalStream} className="mb-5">
               Screen
             </Button>
             <div className="flex items-center gap-x-4 mb-5">
@@ -224,15 +239,15 @@ export default function Broadcast() {
             </div>
             <video
               className="w-[600px] h-[400px] bg-black border"
-              ref={videoRef}
               autoPlay
               playsInline
               muted
+              ref={videoRef}
             />
           </>
         )}
       </div>
-      {onAir && <Chat channelId={user.channelId} />}
+      {onAir && <Chat channelId={user.channel.id} />}
     </div>
   );
 }

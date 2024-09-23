@@ -7,25 +7,25 @@ import {
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 import ChannelNavItem from "./channel-nav-item";
-import type { Broadcast, Channel, LiveChannel } from "@/types";
+import type { Broadcast } from "@/types";
 import { api } from "@/lib/axios";
 
 export default function ChannelNav() {
   const [foldNav, setFoldNav] = useState(false);
-  const [liveChannels, setLiveChannels] = useState<LiveChannel[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
 
   useEffect(() => {
-    const fetchChannels = async () => {
-      const res = await api.get("/api/channels/live");
-      const { data: liveChannelData } = await res.data;
+    const fetchBroadcasts = async () => {
+      const res = await api.get("/api/broadcasts");
+      const { broadcasts } = await res.data.content;
 
-      console.log("liveChannelData: ", liveChannelData);
-      setLiveChannels(liveChannelData);
+      console.log(broadcasts)
+      setBroadcasts(broadcasts);
 
-      setTimeout(() => fetchChannels(), 10000);
+      setTimeout(() => fetchBroadcasts(), 10000);
     };
 
-    fetchChannels();
+    fetchBroadcasts();
   }, []);
 
   return (
@@ -51,10 +51,10 @@ export default function ChannelNav() {
           onClick={() => setFoldNav(true)}
         />
       </div>
-      {liveChannels.map((liveChannel) => (
+      {broadcasts.map((broadcast) => (
         <ChannelNavItem
-          key={liveChannel.channel.id}
-          liveChannel={liveChannel}
+          key={broadcast.channel.id}
+          broadcast={broadcast}
           foldNav={foldNav}
         />
       ))}

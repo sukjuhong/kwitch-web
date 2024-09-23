@@ -1,9 +1,10 @@
 "use client";
 
-import { useAuth } from "@/lib/auth";
 import { API_URL } from "@/utils/env";
 import { createContext, useContext, useEffect, useRef } from "react";
 import { Socket, io } from "socket.io-client";
+import { useAuth } from "./auth-provider";
+import { SocketResponse } from "@/types/socket";
 
 const SocketContext = createContext<Socket | undefined>(undefined);
 
@@ -36,6 +37,29 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+export const videoOptions = {
+  encodings: [
+    {
+      rid: "r0",
+      maxBitrate: 100000,
+      scalabilityMode: "S1T3",
+    },
+    {
+      rid: "r1",
+      maxBitrate: 300000,
+      scalabilityMode: "S1T3",
+    },
+    {
+      rid: "r2",
+      maxBitrate: 900000,
+      scalabilityMode: "S1T3",
+    },
+  ],
+  codecOptions: {
+    videoGoogleStartBitrate: 1000,
+  },
+};
+
 const useSocket = () => {
   const socket = useContext(SocketContext);
 
@@ -43,7 +67,23 @@ const useSocket = () => {
     throw new Error("useSocket must be used within a SocketProvider");
   }
 
-  return socket;
+  const emitAsync = (event: string, data: any): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      socket.emit(event, data, (res: SocketResponse) => {
+        console.log("Socket response: ", res);
+        if (res.success === false) {
+          reject(new Error(res.message));
+        } else {
+          resolve(res.content);
+        }
+      });
+    });
+  };
+
+  return {
+    socket,
+    emitAsync,
+  };
 };
 
 export { SocketProvider, useSocket };

@@ -5,19 +5,20 @@ import { Bars3BottomLeftIcon } from "@heroicons/react/24/solid";
 
 import type { Message } from "@/types";
 import MessageBox from "./message-box";
-import { Label } from "../../../../components/ui/label";
-import { Button } from "../../../../components/ui/button";
-import { Textarea } from "../../../../components/ui/textarea";
-import { useAuth } from "@/lib/auth";
-import { useSocket } from "../../../components/socket-provider";
+import { Label } from "../ui/label";
+import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
+import { useSocket } from "../socket-provider";
 import { SocketResponse } from "@/types/socket";
+import { useAuth } from "../auth-provider";
+import assert from "assert";
 
 /**
  * @param broadcaster broadcaster's username
  */
 export default function Chat({ channelId }: { channelId: string }) {
   const { user } = useAuth();
-  const socket = useSocket();
+  const { socket } = useSocket();
 
   if (!user) {
     throw new Error("User is not defined");
@@ -67,14 +68,15 @@ export default function Chat({ channelId }: { channelId: string }) {
     };
   }, []);
 
-  function submitMessage() {
+  const submitMessage = () => {
+    assert(user, "User is not defined");
     if (!currentMessage) {
       return;
     }
     socket.emit(
       "messages:send",
       channelId,
-      user!.channelId,
+      user.id,
       currentMessage,
       (res: SocketResponse) => {
         setMessages((prev) => [
@@ -82,15 +84,15 @@ export default function Chat({ channelId }: { channelId: string }) {
           {
             username: user!.username,
             message: currentMessage,
-            isBroadcaster: channelId === user!.channelId,
+            isBroadcaster: channelId === user.channel.id,
           },
         ]);
       }
     );
     setCurrentMessage("");
-  }
+  };
 
-  function handleOnKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+  const handleOnKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
         return;
@@ -98,7 +100,7 @@ export default function Chat({ channelId }: { channelId: string }) {
       e.preventDefault();
       submitMessage();
     }
-  }
+  };
 
   return (
     <div

@@ -1,8 +1,8 @@
 "use client";
 
-import SignInForm from "@/app/(auth)/sign-in/components/sign-in-form";
+import { useAuth } from "@/components/auth-provider";
+import SignInForm from "@/components/auth/sign-in-form";
 import Loading from "@/components/loading";
-import { useAuth } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
