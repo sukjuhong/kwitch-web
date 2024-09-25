@@ -33,6 +33,7 @@ export default function ChannelPage() {
     await device.current.load({
       routerRtpCapabilities: rtpCapabilities.current,
     });
+    await _createRecvTransport();
     await _getProducer();
   };
 
@@ -72,12 +73,7 @@ export default function ChannelPage() {
   };
 
   const _createConsumer = async (producerId: string) => {
-    assert(device.current, "Device is not defined.");
-
-    if (!recvTransport.current) {
-      await _createRecvTransport();
-    }
-    
+    assert(device.current, "Device is not defined."); 
     assert(recvTransport.current, "Recv Transport is not defined.");
     const consumerOptions = await emitAsync("sfu:transport-consume", {
       channelId,
